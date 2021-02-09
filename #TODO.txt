@@ -1,0 +1,19 @@
+Sujet de stage : Anticipation de la reconnaissance de l'énoncé de l'utilisateur pour un agent conversationnel
+
+Problème posé : Complétion de phrase -> (Reconnaissance vocale), NLU partiel
+
+Quelles solutions lues pour complétion de phrase :
+	1) Partial utterance recognition only
+		a- Partial utterance NLU
+		b- Partial utterance NLU  + evaluation classifier
+	2) ASR + Partial utterance
+		a- ASR + partial utterance NLU
+		b- ASR + partial utterance NLU + evaluation classifier
+		c- ASR + partial utterance NLU + evaluation classifier
+	3) ISR + Partial utterance
+		a- ISR + partial utterance NLU
+		b- ISR + partial utterance NLU + evaluation classifier
+		c- ISR + incremental partial utterance NLU + evaluation classifier
+
+Librairies python :
+	https://github.com/keon/awesome-nlp#user-content-python
