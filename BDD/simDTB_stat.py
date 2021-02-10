@@ -79,7 +79,7 @@ def barplot(nb_utt_len):
 
 def pointplot(utt_len):
 	Y = utt_len
-	X = range(0, len(utt_len))
+	X = range(1, len(utt_len)+1)
 
 	plt.scatter(X,Y)
 	plt.show()
@@ -162,10 +162,7 @@ print("min : ", min, "max : ", max)
 nbUtt = nb_len(nbWord, max)
 
 #stat calc
-#moy, median, var, quart1, quart3 = stats(nbWord)
-
-#bar graph of number of utterance of same length
-barplot(nbUtt)
+moy, median, var, quart1, quart3 = stats(nbWord)
 
 #point plot
 pointplot(nbUtt)

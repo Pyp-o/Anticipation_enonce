@@ -3,8 +3,8 @@ import statistics as stat
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rd
-import re
-import string
+import re 
+import string 
 import datetime
 from nltk.corpus import words
 
@@ -106,82 +106,49 @@ def printStats(moy, median, var, quart1, quart3):
 
 
 
-def lexic(phrase):
+def lexic(phrase, character):
 	lex = []
 	for p in phrase:
 		if isinstance(p, str):
 			word = re.sub('['+string.punctuation+']', '', p).split()
 			for w in word:
 					if w not in lex:
-						lex.append(w)
+						if not w in character:
+							lex.append(w)
 
 	print("nb de mots différents :", len(lex))
 	return lex
 
-def parsingAllData(transcript):
-    utterances = []
-
-    for t in transcript:
-        utterances.append(t.split("\n"))
-
-    return utterances
-
-def parsingDialog(transcript):
-    utterances = []
-
-
-    #t is list like ["text..text", ''] => end of line is empty but added to it
-    #so using only first element
-    for t in transcript:
-        utterances.append(t[0].split("__eou__"))
-
-    return utterances
-
-
-def removEmptyLast(transcript):
-    for t in transcript:
-        del t[-1]
-
-    return transcript
-
-def formatCorrect(transcript):
-    utterances = []
-    for t in transcript:
-        for u in t:
-            utterances.append(u)
-
-    return utterances
 
 ####################MAIN######################
-df = open(r'../../DataBase/dialog/dialogues_text.txt')
 
-#parsing each dialog
+#load csv
+df = pd.read_csv(r'../../DataBase/south_park/sp_lines.csv')
 
-utt = parsingAllData(df)
-df.close()
+utterance = df.text
+character = df.character
 
+"""
+episode = df.episode_name
+season = df.season_number
+eipsode = df.episode_number
+"""
 
-#parsing each phrase of each dialog
-utt = parsingDialog(utt)
+del(df)
 
-
-#remove last item which is empty
-utt = removEmptyLast(utt)
-
-#format correction for data analyse
-utt = formatCorrect(utt)
-
-
+#utterance example
+print(utterance[rd.randint(0, 1000)])
 
 #var
 nbWord = []
 nbUtt = []
 lex = []
 
-#print("calcul time :", end-begin)
+#remplissage du lexique
+lex = lexic(utterance, character)
 
 #count number in each utterance
-nbWord = DTBwordCount(utt)
+nbWord = DTBwordCount(utterance)
 
 #shortest and longest utterance in nb of words
 min, max = min_max(nbWord)
@@ -200,7 +167,7 @@ pointplot(nbUtt)
 del nbUtt[75:len(nbUtt)-1]
 pointplot(nbUtt)
 
-#plot [0 to 15] length utterance
-del nbUtt[15:len(nbUtt)-1]
+#plot [0 to 10] length utterance
+del nbUtt[10:len(nbUtt)-1]
 pointplot(nbUtt)
 barplot(nbUtt)
