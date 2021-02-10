@@ -78,8 +78,8 @@ def barplot(nb_utt_len):
     plt.show()
 
 def pointplot(utt_len):
-	X = utt_len
-	Y = range(0, len(utt_len))
+	Y = utt_len
+	X = range(0, len(utt_len))
 
 	plt.scatter(X,Y)
 	plt.show()
@@ -112,7 +112,6 @@ def lexic(phrase, character):
 		if isinstance(p, str):
 			word = re.sub('['+string.punctuation+']', '', p).split()
 			for w in word:
-				if w in words.words():
 					if w not in lex:
 						if not w in character:
 							lex.append(w)
@@ -124,7 +123,7 @@ def lexic(phrase, character):
 ####################MAIN######################
 
 #load csv
-df = pd.read_csv(r'./simpsons_dataset.csv')
+df = pd.read_csv(r'../../DataBase/simpsons/simpsons_dataset.csv')
 # raw_character_text / spoken_words
 # personnage parlant / phrase
 # same size
@@ -132,6 +131,8 @@ df = pd.read_csv(r'./simpsons_dataset.csv')
 #parse dtb
 character = df.raw_character_text
 phrase = df.spoken_words
+
+del(df)
 
 #utterance example
 print(phrase[rd.randint(0, 1000)])
@@ -164,4 +165,16 @@ nbUtt = nb_len(nbWord, max)
 #moy, median, var, quart1, quart3 = stats(nbWord)
 
 #bar graph of number of utterance of same length
+barplot(nbUtt)
+
+#point plot
+pointplot(nbUtt)
+
+#plot [0 to 75] length utterance
+del nbUtt[75:len(nbUtt)-1]
+pointplot(nbUtt)
+
+#plot [0 to 10] length utterance
+del nbUtt[10:len(nbUtt)-1]
+pointplot(nbUtt)
 barplot(nbUtt)

@@ -120,15 +120,16 @@ def lexic(phrase):
 
 ####################MAIN######################
 
-df = pd.read_csv (r'../../DataBase/medical/mtsamples.csv')
+df = open(r'../../DataBase/dialog/dialogues_text.txt', encoding="utf-8")
 #unnamed / medical_specialty / sample_name / transcription / keywords
 
 #parse DTB
-transcript=df.transcription
-
+transcript=df.read()
+print(transcript)
+df.close()
 del(df)
 
-
+"""
 #utterance example
 print(transcript[rd.randint(0, 1000)])
 
@@ -136,13 +137,6 @@ print(transcript[rd.randint(0, 1000)])
 nbWord = []
 nbUtt = []
 lex = []
-
-#remplissage du lexique
-"""begin = datetime.datetime.now()
-print("debut :", begin)
-lex = lexic(utterance)
-end = datetime.datetime.now()
-print("end :", end)"""
 
 #print("calcul time :", end-begin)
 
@@ -173,3 +167,4 @@ pointplot(nbUtt)
 del nbUtt[10:len(nbUtt)-1]
 pointplot(nbUtt)
 barplot(nbUtt)
+"""
