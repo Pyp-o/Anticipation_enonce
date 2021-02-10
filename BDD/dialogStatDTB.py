@@ -118,16 +118,32 @@ def lexic(phrase):
 	print("nb de mots différents :", len(lex))
 	return lex
 
+def parsing(transcript):
+    utterances = []
+    lastcut = 0
+
+    for i in range(len(transcript)):
+        if transcript[i] == '\n':
+            utterances.append(transcript[lastcut:i+1])
+
+    return utterances
+
+
 ####################MAIN######################
 
-df = open(r'../../DataBase/dialog/dialogues_text.txt', encoding="utf-8")
+df = pd.read_fwf(r'../../DataBase/dialog/dialogues_text.txt')
 #unnamed / medical_specialty / sample_name / transcription / keywords
 
+df.to_csv(r'../../DataBase/dialog/dialogues_text.txt')
+
 #parse DTB
-transcript=df.read()
-print(transcript)
-df.close()
+#transcript=df.read()
+print(df)
+#df.close()
 del(df)
+
+#transcript = parsing(transcript)
+
 
 """
 #utterance example
