@@ -120,6 +120,30 @@ def lexic(phrase, character):
 	return lex
 
 
+def randPrint(transcript):
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+
+#probleme avec les mots pluriels
+def onlyEnglishLexic(lexic):
+    lex = []
+    oov = []
+    word_list = words.words()
+    for w in range(len(lexic)):
+        if lexic[w] in word_list:
+                lex.append(lexic[w])
+        elif lexic[w][len(lexic[w])-1]== 's':
+            lexic[w] = lexic[w][:-1]
+            if lexic[w] in word_list:
+                lex.append(lexic[w])
+        else:
+            oov.append(lexic[w]) 
+    return lex, oov
+
 ####################MAIN######################
 
 #load csv
@@ -136,16 +160,21 @@ eipsode = df.episode_number
 
 del(df)
 
-#utterance example
-print(utterance[rd.randint(0, 1000)])
+#randPrint(utterance)
 
 #var
 nbWord = []
 nbUtt = []
 lex = []
+oov = []
 
 #remplissage du lexique
 lex = lexic(utterance, character)
+
+#delete OOV words from lexic
+lex, oov = onlyEnglishLexic(lex)
+print("nb de mots différents (actualisé) :", len(lex))
+print(oov)
 
 #count number in each utterance
 nbWord = DTBwordCount(utterance)

@@ -118,6 +118,15 @@ def lexic(phrase):
 	print("nb de mots différents :", len(lex))
 	return lex
 
+
+def randPrint(transcript):
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+
 ####################MAIN######################
 
 df = pd.read_csv (r'../../DataBase/radio_archives/utterances.csv')
@@ -131,7 +140,7 @@ del(df)
 
 
 #utterance example
-print(utterance[rd.randint(0, 1000)])
+randPrint(utterance)
 
 #var
 nbWord = []

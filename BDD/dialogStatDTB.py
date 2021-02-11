@@ -152,6 +152,14 @@ def formatCorrect(transcript):
 
     return utterances
 
+def randPrint(transcript):
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+
 ####################MAIN######################
 df = open(r'../../DataBase/dialog/dialogues_text.txt')
 
@@ -171,7 +179,7 @@ utt = removEmptyLast(utt)
 #format correction for data analyse
 utt = formatCorrect(utt)
 
-
+randPrint(utt)
 
 #var
 nbWord = []

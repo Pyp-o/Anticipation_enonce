@@ -119,6 +119,13 @@ def lexic(phrase, character):
 	print("nb de mots différents :", len(lex))
 	return lex
 
+def randPrint(transcript):
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
+    print(transcript[rd.randint(0, 1000)])
 
 ####################MAIN######################
 
@@ -135,7 +142,7 @@ phrase = df.spoken_words
 del(df)
 
 #utterance example
-print(phrase[rd.randint(0, 1000)])
+randPrint(phrase)
 
 #var
 nbWord = []
