@@ -1,3 +1,5 @@
+####################IMPORTS######################
+
 import pandas as pd
 import statistics as stat
 import numpy as np
@@ -6,7 +8,10 @@ import random as rd
 import re 
 import string 
 import datetime
+import enchant
 from nltk.corpus import words
+
+####################FUNCTIONS######################
 
 def wordCount(string):
     return (len(string.strip().split(" ")))
@@ -144,6 +149,21 @@ def onlyEnglishLexic(lexic):
             oov.append(lexic[w]) 
     return lex, oov
 
+def onlyEnglishLexic2(lexic):
+    lex = []
+    oov = []
+    word_list = enchant.Dict("en ")
+    for w in range(len(lexic)):
+        if word_list.check(lexic[w]):
+            lex.append(lexic[w])
+        elif lexic[w][len(lexic[w])-1]== 's':
+            lexic[w] = lexic[w][:-1]
+            if word_list.check(lexic[w]):
+                lex.append(lexic[w])
+        else:
+            oov.append(lexic[w]) 
+    return lex, oov
+
 ####################MAIN######################
 
 #load csv
@@ -174,6 +194,9 @@ lex = lexic(utterance, character)
 #delete OOV words from lexic
 lex, oov = onlyEnglishLexic(lex)
 print("nb de mots différents (actualisé) :", len(lex))
+
+lex, oov = onlyEnglishLexic2(lex)
+print("nb de mots différents (actualisé 2) :", len(lex))
 print(oov)
 
 #count number in each utterance
