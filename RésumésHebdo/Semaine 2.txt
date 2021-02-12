@@ -1,0 +1,13 @@
+8 Février au 12 Février
+Fait :
+- Recherche de BDD
+- Scripts python pour étude statistique des BDD trouvées
+- Compte-rendu de cette étude statistique
+- Mise en place d'un git
+- Début de l'entrainement à l'utilisation de LSTMS avec Keras
+
+A faire :
+- Fin de l'entrainement avec Keras
+- Mise en place d'un planning prévisionnel avec des objectifs à moyen terme (plusieurs étapes clés à remplir)
+- Utilisation d'un premier modèle pour de la prédiction simple avec entrée textuelle formatée
+- Recherche d'ASR pour future implémentation

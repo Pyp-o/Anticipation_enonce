@@ -1,0 +1,9 @@
+1er Février au 5 Février
+
+- Arrivée dans les locaux
+- Install de Kubuntu
+- Desinstall de Kubuntu
+- Install de Ubuntu 20.04
+- Paramétrage du proxy
+- Recherche de BDD 
+- Organisation et recherche de solutions au sujet de stage
