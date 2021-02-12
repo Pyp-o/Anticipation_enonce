@@ -71,18 +71,26 @@ def barplot(nb_utt_len):
     # Create bars
     plt.bar(y_pos, height)
 
+    # axes title
+    plt.xlabel("Nombre de mots")
+    plt.ylabel("Nombre d'élocutions")
+
     # Create names on the x-axis
     plt.xticks(y_pos, rotation=90)
 
     # Show graphic
     plt.show()
 
-def pointplot(utt_len):
-	Y = utt_len
-	X = range(1, len(utt_len)+1)
 
-	plt.scatter(X,Y)
-	plt.show()
+def pointplot(utt_len):
+    Y = utt_len
+    X = range(1, len(utt_len)+1)
+
+    plt.xlabel("Nombre de mots")
+    plt.ylabel("Nombre d'élocutions")
+
+    plt.plot(X, Y, 'o')
+    plt.show()
 
 
 def stats(utt_len):
@@ -191,10 +199,9 @@ def onlyEnglishLexic2(lexic):
     return lex, oov
 
 ####################MAIN######################
-df = open(r'../../DataBase/dialog/dialogues_text.txt')
+df = open(r'../../DataBase/dialog/dialogues_text.txt', encoding='utf-8')
 
 #parsing each dialog
-
 utt = parsingAllData(df)
 df.close()
 

@@ -71,18 +71,26 @@ def barplot(nb_utt_len):
     # Create bars
     plt.bar(y_pos, height)
 
+    # axes title
+    plt.xlabel("Nombre de mots")
+    plt.ylabel("Nombre d'élocutions")
+
     # Create names on the x-axis
     plt.xticks(y_pos, rotation=90)
 
     # Show graphic
     plt.show()
 
-def pointplot(utt_len):
-	Y = utt_len
-	X = range(1, len(utt_len)+1)
 
-	plt.scatter(X,Y)
-	plt.show()
+def pointplot(utt_len):
+    Y = utt_len
+    X = range(1, len(utt_len)+1)
+
+    plt.xlabel("Nombre de mots")
+    plt.ylabel("Nombre d'élocutions")
+
+    plt.plot(X, Y, 'o')
+    plt.show()
 
 
 def stats(utt_len):
@@ -177,6 +185,7 @@ nbWord = []
 nbUtt = []
 lex = []
 
+"""
 #remplissage du lexique
 lex = lexic(utterance)
 
@@ -186,7 +195,7 @@ print("nb de mots différents (actualisé) :", len(lex))
 
 lex, oov = onlyEnglishLexic2(lex)
 print("nb de mots différents (actualisé 2) :", len(lex))
-
+"""
 
 #print("calcul time :", end-begin)
 
@@ -214,6 +223,6 @@ del nbUtt[75:len(nbUtt)-1]
 pointplot(nbUtt)
 
 #plot [0 to 10] length utterance
-del nbUtt[10:len(nbUtt)-1]
+del nbUtt[15:len(nbUtt)-1]
 pointplot(nbUtt)
 barplot(nbUtt)
