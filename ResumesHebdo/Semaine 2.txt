@@ -3,8 +3,8 @@ Fait :
 - Recherche de BDD
 - Scripts python pour étude statistique des BDD trouvées
 - Compte-rendu de cette étude statistique
-- Mise en place d'un git
-- Début de l'entrainement à l'utilisation de LSTMS avec Keras
+- Mise en place d'un git ( https://github.com/Pypodhau/Anticipation_enonce )
+- Début de l'entrainement à l'utilisation de LSTMs avec Keras
 
 A faire :
 - Fin de l'entrainement avec Keras
