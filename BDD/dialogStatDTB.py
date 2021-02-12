@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import random as rd
 import re
 import string
-import datetime
+import enchant
 from nltk.corpus import words
 
 def wordCount(string):
@@ -160,6 +160,36 @@ def randPrint(transcript):
     print(transcript[rd.randint(0, 1000)])
     print(transcript[rd.randint(0, 1000)])
 
+def onlyEnglishLexic(lexic):
+    lex = []
+    oov = []
+    word_list = words.words()
+    for w in range(len(lexic)):
+        if lexic[w] in word_list:
+                lex.append(lexic[w])
+        elif lexic[w][len(lexic[w])-1]== 's':
+            lexic[w] = lexic[w][:-1]
+            if lexic[w] in word_list:
+                lex.append(lexic[w])
+        else:
+            oov.append(lexic[w])
+    return lex, oov
+
+def onlyEnglishLexic2(lexic):
+    lex = []
+    oov = []
+    word_list = enchant.Dict("en ")
+    for w in range(len(lexic)):
+        if word_list.check(lexic[w]):
+            lex.append(lexic[w])
+        elif lexic[w][len(lexic[w])-1]== 's':
+            lexic[w] = lexic[w][:-1]
+            if word_list.check(lexic[w]):
+                lex.append(lexic[w])
+        else:
+            oov.append(lexic[w])
+    return lex, oov
+
 ####################MAIN######################
 df = open(r'../../DataBase/dialog/dialogues_text.txt')
 
@@ -187,6 +217,15 @@ nbUtt = []
 lex = []
 
 #print("calcul time :", end-begin)
+lex = lexic(utt)
+
+#delete OOV words from lexic
+lex, oov = onlyEnglishLexic(lex)
+print("nb de mots différents (actualisé) :", len(lex))
+
+lex, oov = onlyEnglishLexic2(lex)
+print("nb de mots différents (actualisé 2) :", len(lex))
+
 
 #count number in each utterance
 nbWord = DTBwordCount(utt)

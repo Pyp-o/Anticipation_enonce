@@ -6,8 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random as rd
 import re 
-import string 
-import datetime
+import string
 import enchant
 from nltk.corpus import words
 
@@ -197,7 +196,7 @@ print("nb de mots différents (actualisé) :", len(lex))
 
 lex, oov = onlyEnglishLexic2(lex)
 print("nb de mots différents (actualisé 2) :", len(lex))
-print(oov)
+
 
 #count number in each utterance
 nbWord = DTBwordCount(utterance)

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import random as rd
 import re
 import string
-import datetime
+import enchant
 from nltk.corpus import words
 
 def wordCount(string):
@@ -126,6 +126,36 @@ def randPrint(transcript):
     print(transcript[rd.randint(0, 1000)])
     print(transcript[rd.randint(0, 1000)])
 
+def onlyEnglishLexic(lexic):
+    lex = []
+    oov = []
+    word_list = words.words()
+    for w in range(len(lexic)):
+        if lexic[w] in word_list:
+                lex.append(lexic[w])
+        elif lexic[w][len(lexic[w])-1]== 's':
+            lexic[w] = lexic[w][:-1]
+            if lexic[w] in word_list:
+                lex.append(lexic[w])
+        else:
+            oov.append(lexic[w])
+    return lex, oov
+
+def onlyEnglishLexic2(lexic):
+    lex = []
+    oov = []
+    word_list = enchant.Dict("en ")
+    for w in range(len(lexic)):
+        if word_list.check(lexic[w]):
+            lex.append(lexic[w])
+        elif lexic[w][len(lexic[w])-1]== 's':
+            lexic[w] = lexic[w][:-1]
+            if word_list.check(lexic[w]):
+                lex.append(lexic[w])
+        else:
+            oov.append(lexic[w])
+    return lex, oov
+
 ####################MAIN######################
 
 df = pd.read_csv (r'../../DataBase/medical/mtsamples.csv')
@@ -146,11 +176,15 @@ nbUtt = []
 lex = []
 
 #remplissage du lexique
-"""begin = datetime.datetime.now()
-print("debut :", begin)
-lex = lexic(utterance)
-end = datetime.datetime.now()
-print("end :", end)"""
+lex = lexic(transcript)
+
+#delete OOV words from lexic
+lex, oov = onlyEnglishLexic(lex)
+print("nb de mots différents (actualisé) :", len(lex))
+
+lex, oov = onlyEnglishLexic2(lex)
+print("nb de mots différents (actualisé 2) :", len(lex))
+
 
 #print("calcul time :", end-begin)
 
