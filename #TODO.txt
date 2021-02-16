@@ -2,18 +2,30 @@ Sujet de stage : Anticipation de la reconnaissance de l'énoncé de l'utilisateu
 
 Problème posé : Complétion de phrase -> (Reconnaissance vocale), NLU partiel
 
-Quelles solutions lues pour complétion de phrase :
-	1) Partial utterance recognition only
-		a- Partial utterance NLU
-		b- Partial utterance NLU  + evaluation classifier
-	2) ASR + Partial utterance
-		a- ASR + partial utterance NLU
-		b- ASR + partial utterance NLU + evaluation classifier
-		c- ASR + partial utterance NLU + evaluation classifier
-	3) ISR + Partial utterance
-		a- ISR + partial utterance NLU
-		b- ISR + partial utterance NLU + evaluation classifier
-		c- ISR + incremental partial utterance NLU + evaluation classifier
+############## Poitnts à régler ##############
 
-Librairies python :
-	https://github.com/keon/awesome-nlp#user-content-python
+- Data preparation :
+	1) encoding / decoding
+	2) scaling
+	3) padding
+	4) cutting
+	5) data length
+
+- Model Architecture :
+	1) LSTM size
+	2) single or multiple input
+	3) stacked LSTM
+	4) Encoder - Decoder
+	5) Generative model
+		a- word-level
+		b- character-level
+
+- Training :
+	1) which dataset
+	2) which hyperparameters
+
+- Save model :
+	1) format
+	2) what to save
+
+############## Poitnts à régler ##############
