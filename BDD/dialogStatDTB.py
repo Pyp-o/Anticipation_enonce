@@ -216,6 +216,8 @@ utt = removEmptyLast(utt)
 #format correction for data analyse
 utt = formatCorrect(utt)
 
+print("nb d'utterances :", len(utt))
+
 randPrint(utt)
 
 #var

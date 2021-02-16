@@ -187,6 +187,8 @@ eipsode = df.episode_number
 
 del(df)
 
+print("nb d'utterances :", len(utterance))
+
 #randPrint(utterance)
 
 #var

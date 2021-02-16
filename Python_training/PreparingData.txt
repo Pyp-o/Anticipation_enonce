@@ -1,0 +1,26 @@
+Numeric data :
+	numbers sequences (word to vect ?)
+
+	normalization : rescale values between 0 and 1
+		si valeurs min et max sont inconnues, ne pas utiliser, sinon normalisation de valeurs externes à ces bornes donnent des résultats inférieurs à 0 ou sup à 1
+
+	standardization : rescale values in order to have mean=0 and std deviation=1
+		pouvoir connaitre la moyenne et la variance des valeurs 
+
+	!!save the coefficients to scale new datas in the same way as the training data !!
+
+
+Categorical data :
+	multiple label data as [red, green, blue]
+	can be used for vectors (word to vect)
+
+Variable length
+	transform datas in same length sequences
+
+	padding :
+		pre-padding : add '0' at the beginning
+		post-padding : add'0' at the end
+
+	sequence truncation :
+		pre-sequence truncation : cut the beginning of sequence to fit into the size
+		post-sequence truncation : cut the end ...
