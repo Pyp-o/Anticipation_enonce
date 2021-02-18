@@ -28,4 +28,21 @@ Problème posé : Complétion de phrase -> (Reconnaissance vocale), NLU partiel
 	1) format
 	2) what to save
 
-############## Poitnts à régler ##############
+############## Points à régler ##############
+
+############## Protocole de recherche ##############
+Model construction :
+1) import data
+2) clean data
+3) parse data (training, testing, validation set)
+4) convert to tensor
+5) create model
+6) train model
+7) predict
+8) convert predicted data to get sense
+9) test results
+10) test model
+
+Optimization:
+1) repeat model construction by changing 1 feature at a time to control its influence
+2) Save every modification and every model to trace changes and results
