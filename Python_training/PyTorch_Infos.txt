@@ -1,0 +1,49 @@
+PyTorch formation
+
+Tensors:
+	from data:
+		tensor = torch.tensor(data)
+	from np_array
+		tensor = torch.from_numpy(np_array
+
+	tensors attributes:
+		print(f"Shape of tensor: {tensor.shape}")
+		print(f"Datatype of tensor: {tensor.dtype}")
+		print(f"Device tensor is stored on: {tensor.device}")
+
+	moving tensor stored in CPU to GPU:
+		if torch.cuda.is_available():
+  			tensor = tensor.to('cuda')
+
+	concatenate tensors:
+	multiply:
+	matrix multiply:
+	bridge between CPU stored tensor and numpy array:
+
+Forward propagation:
+	Give input and propage through model to get prediction
+
+Backward propagation :
+	Parameters adjustement using error between guess and true result. Done by traversing from the output
+
+	forward propagation or prediction:
+		prediction = model(data)
+
+	error (loss) calcul and backward propagation:
+		loss = (prediction - true_answer).sum()
+		loss.backward()
+
+	loading optimizer:
+		# optimizer adjust each paramater
+		optimizer = torch.optim.SGD(model.parameters(), lr=1e-2, momentum=0.9)
+		#here optimizer is Stochastic Gradient Descent with learning rate (lr) = 0.01 and momentum = 0.9
+
+	initiate gradient descient:
+		optim.step()
+
+Defining Neural Networks in PyTorch :
+	A neural network is defined as a class.
+	#https://pytorch.org/tutorials/beginner/blitz/neural_networks_tutorial.html#sphx-glr-beginner-blitz-neural-networks-tutorial-py
+
+Data loading packages for NLP:
+	raw python, Cython, NLTK, SpaCy

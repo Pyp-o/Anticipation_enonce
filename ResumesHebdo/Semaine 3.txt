@@ -1,0 +1,14 @@
+15 Février au 19 Février
+Fait :
+- Installations TensorFlow, Pytorch, CUDA
+- Debug TensorFlow
+- Entrainement Pytorch
+- Exemples Pytorch
+- Proposition de modèle ne prédisant qu'un mot à la fois mais bouclé jusqu'à obtenir une phrase complète
+- Proposition d'Encoder-Decoder pour s'affranchir du problème des dimensions d'entrée et sortie
+- Validation de la BDD Dialog
+
+A faire:
+- Terminer entrainement Pytorch et construction de modèles pour entrainement
+- Planning prévisionnel
+- Modèle de prédiction de fin de phrase simple

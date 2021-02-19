@@ -1,3 +1,11 @@
+##### LINKS #####
+
+# https://stackabuse.com/time-series-prediction-using-lstm-with-pytorch-in-python/
+# https://discuss.pytorch.org/t/please-help-lstm-input-output-dimensions/89353
+# https://medium.com/@masterofchaos/lstms-made-easy-a-simple-practical-approach-to-time-series-prediction-using-pytorch-fastai-103dd4f27b82
+
+##### IMPORTS #####
+
 import torch
 import torch.nn as nn
 
@@ -64,7 +72,7 @@ all_data = flight_data['passengers'].values.astype(float)
 #print(all_data)
 
 #parsing all data into test and train datasets
-test_data_size = 24
+test_data_size = 12
 train_data = all_data[:-test_data_size]
 test_data = all_data[-test_data_size:]
 
@@ -87,7 +95,7 @@ loss_function = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 #training model
-epochs = 1500
+epochs = 150
 
 for i in range(epochs):
     for seq, labels in train_inout_seq:
@@ -101,13 +109,13 @@ for i in range(epochs):
         single_loss.backward()
         optimizer.step()
 
-    if i%25 == 1:
+    if i%5 == 1:
         print(f'epoch: {i:3} loss: {single_loss.item():10.8f}')
 
 print(f'epoch: {i:3} loss: {single_loss.item():10.10f}')
 
 #predictions
-fut_pred = 24
+fut_pred = 12
 
 test_inputs = train_data_normalized[-train_window:].tolist()
 
@@ -125,7 +133,7 @@ for i in range(fut_pred):
 actual_predictions = scaler.inverse_transform(np.array(test_inputs[train_window:] ).reshape(-1, 1))
 
 #index for predicted months
-x = np.arange(120, 120+fut_pred, 1)
+x = np.arange(132, 132+fut_pred, 1)
 
 #plot predicted values and real values
 plt.title('Month vs Passenger')
