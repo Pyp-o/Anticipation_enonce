@@ -11,9 +11,7 @@ import torch.nn as nn
 
 import seaborn as sns
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-
 from sklearn.preprocessing import MinMaxScaler
 
 #data preparation, return [number of passengers for 12 months, number of passengers for the next month]
@@ -27,34 +25,28 @@ def create_inout_sequences(input_data, tw):
     return inout_seq
 
 #LSTM model creation
-#input_size : 1 feature described here : number of passengers*
+#input_size : 1 feature described here : number of passengers
 #hidden_layer_size : 100 neurons
 #output size : prediction on 1 month
 class LSTM(nn.Module):
-    def __init__(self, input_size=1, hidden_layer_size=240, output_size=1):
+    def __init__(self, input_size=1, hidden_layer_size=256, output_size=1):
         super().__init__()
         self.hidden_layer_size = hidden_layer_size
 
-        self.lstm = nn.LSTM(input_size, hidden_layer_size)
-
+        self.lstm1 = nn.LSTM(input_size, hidden_layer_size)
+        
         self.linear = nn.Linear(hidden_layer_size, output_size)
 
         self.hidden_cell = (torch.zeros(1,1,self.hidden_layer_size),
                             torch.zeros(1,1,self.hidden_layer_size))
 
     def forward(self, input_seq):
-        lstm_out, self.hidden_cell = self.lstm(input_seq.view(len(input_seq) ,1, -1), self.hidden_cell)
+        lstm_out, self.hidden_cell = self.lstm1(input_seq.view(len(input_seq) ,1, -1), self.hidden_cell)
         predictions = self.linear(lstm_out.view(len(input_seq), -1))
         return predictions[-1]
 
 #load dataset
 flight_data = sns.load_dataset("flights")
-
-#increase plot size
-fig_size = plt.rcParams["figure.figsize"]
-fig_size[0] = 15
-fig_size[1] = 5
-plt.rcParams["figure.figsize"] = fig_size
 
 """
 #plot number of passenger per month
@@ -66,6 +58,8 @@ plt.autoscale(axis='x',tight=True)
 plt.plot(flight_data['passengers'])
 plt.show()
 """
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #set all data "passengers" to float
 all_data = flight_data['passengers'].values.astype(float)
