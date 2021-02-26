@@ -44,7 +44,7 @@ class DS(Dataset):
         return data, labels
 
 class Model(nn.Module):
-    def __init__(self, input_size=1, hidden_size=10, output_size=1, num_layers=1, seq_length=12, batch_size=1):
+    def __init__(self, input_size=1, hidden_size=256, output_size=1, num_layers=1, seq_length=12, batch_size=1):
         super().__init__()
         input_size = input_size
         self.hidden_size = hidden_size
@@ -54,17 +54,18 @@ class Model(nn.Module):
         self.batch_size = batch_size
 
         self.lstm1 = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, bidirectional=False)   #first lstm layer
-        self.lstm2 = nn.LSTM(input_size=hidden_size, hidden_size=hidden_size*2, num_layers=num_layers, batch_first=True, bidirectional=False)    #second lstm layer
-        self.fc = nn.Linear(hidden_size*2, output_size) #linear layer to convert hidden processed data into 1 prediction
+        #self.lstm2 = nn.LSTM(input_size=hidden_size, hidden_size=hidden_size*2, num_layers=num_layers, batch_first=True, bidirectional=False)    #second lstm layer
+        self.fc = nn.Linear(hidden_size, output_size) #linear layer to convert hidden processed data into 1 prediction
 
     def forward(self, x):
         h0_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size))  #hidden layer init to 0
         c0_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size))
+        x, (hn, cn) = self.lstm1(x, (h0_0, c0_0))
+        """
         h0_1 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size*2))
         c0_1 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size*2))
-        x, (hn, cn) = self.lstm1(x.view(len(x) ,self.batch_size , -1), (h0_0,c0_0))
         x, (hn, cn) = self.lstm2(x.view(len(x) ,self.batch_size , -1), (h0_1,c0_1))
-
+        """
         x = self.fc(x)
 
         return x
@@ -84,10 +85,8 @@ data_normalized = scaler.fit_transform(passengers.reshape(-1, 1))
 
 data_normalized = torch.FloatTensor(data_normalized).view(-1)
 
-dataset = sliding_window(data_normalized, 12)
-
-train_dataset = dataset[:120]
-test_dataset = dataset[120:]
+train_dataset = sliding_window(data_normalized, 12)
+test_dataset = parse_window(data_normalized,12)
 
 ######### MODEL #########
 #model
@@ -95,10 +94,12 @@ model = Model()
 loss_function = nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
 
-epochs = 100
+epochs = 10
+
 
 for i in range(epochs):
     for seq, labels in train_dataset:
+        seq = seq.reshape(12,1,-1)
         model.train()
         optimizer.zero_grad()
         y_pred = model(seq)
@@ -111,13 +112,19 @@ for i in range(epochs):
         print(f'epoch: {i:3} loss: {single_loss.item():10.8f}')
 
 print(f'epoch: {i:3} loss: {single_loss.item():10.10f}')
-pred=[]
 
-for seq in test_dataset:
-    y_pred = model(seq)
-    pred.append(y_pred)
+pred_data = []
+real_pred_data = []
+pred = model(seq)
 
-print(pred)
+for p in pred:
+    pred_data.append(p.data.numpy())
+
+for p in pred_data:
+    real_pred_data.append(scaler.inverse_transform(p)[0][0])
+
+print(real_pred_data)
+
 #hidden_size - the number of LSTM blocks per layer.
 #input_size - the number of input features per time-step.
 #num_layers - the number of hidden layers.
