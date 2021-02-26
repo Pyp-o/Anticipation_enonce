@@ -1,0 +1,8 @@
+22 Février au 26 Février
+Fait :
+- Entrainement incomplet avec Pytorch (difficultés avec le format des données d'entrée)
+
+
+A faire:
+- Terminer la prise en main de PyTorch avec des modifications du modèle de LSTM utilisant des séquences de nombres
+- Commencer une prise en main d'un modèle PyTorch prenant des séquences de mots encodés
