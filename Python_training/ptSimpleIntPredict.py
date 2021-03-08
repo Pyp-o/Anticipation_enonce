@@ -1,149 +1,151 @@
 ##### LINKS #####
 
-# https://stackabuse.com/time-series-prediction-using-lstm-with-pytorch-in-python/
-# https://discuss.pytorch.org/t/please-help-lstm-input-output-dimensions/89353
-# https://medium.com/@masterofchaos/lstms-made-easy-a-simple-practical-approach-to-time-series-prediction-using-pytorch-fastai-103dd4f27b82
+# https://cnvrg.io/pytorch-lstm/
 
 ##### IMPORTS #####
 
-import torch
-import torch.nn as nn
-
-import seaborn as sns
 import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+import torch #pytorch
+import torch.nn as nn
+from torch.autograd import Variable 
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
 
-#data preparation, return [number of passengers for 12 months, number of passengers for the next month]
-def create_inout_sequences(input_data, tw):
-    inout_seq = []
-    L = len(input_data)
-    for i in range(L-tw):
-        train_seq = input_data[i:i+tw]
-        train_label = input_data[i+tw:i+tw+1]
-        inout_seq.append((train_seq ,train_label))
-    return inout_seq
+##### LSTM construction #####
 
-#LSTM model creation
-#input_size : 1 feature described here : number of passengers
-#hidden_layer_size : 100 neurons
-#output size : prediction on 1 month
-class LSTM(nn.Module):
-    def __init__(self, input_size=1, hidden_layer_size=256, output_size=1):
-        super().__init__()
-        self.hidden_layer_size = hidden_layer_size
+class LSTM1(nn.Module):
+	def __init__(self, num_classes, input_size, hidden_size, num_layers, seq_length):
+	    super(LSTM1, self).__init__()
+	    self.num_classes = num_classes #number of classes
+	    self.num_layers = num_layers #number of layers
+	    self.input_size = input_size #input size
+	    self.hidden_size = hidden_size #hidden state
+	    self.seq_length = seq_length #sequence length
+	 
+	    self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size,
+	                      num_layers=num_layers, batch_first=True) #lstm
+	    self.fc_1 =  nn.Linear(hidden_size, 128) #fully connected 1
+	    self.fc = nn.Linear(128, num_classes) #fully connected last layer
 
-        self.lstm1 = nn.LSTM(input_size, hidden_layer_size)
-        
-        self.linear = nn.Linear(hidden_layer_size, output_size)
+	    self.relu = nn.ReLU() 
 
-        self.hidden_cell = (torch.zeros(1,1,self.hidden_layer_size),
-                            torch.zeros(1,1,self.hidden_layer_size))
+	def forward(self,x):
+	    h_0 = Variable(torch.zeros(
+	          self.num_layers, x.size(0), self.hidden_size)) #hidden state
+	     
+	    c_0 = Variable(torch.zeros(
+	        self.num_layers, x.size(0), self.hidden_size)) #internal state
+	   
+	    # Propagate input through LSTM
 
-    def forward(self, input_seq):
-        lstm_out, self.hidden_cell = self.lstm1(input_seq.view(len(input_seq) ,1, -1), self.hidden_cell)
-        predictions = self.linear(lstm_out.view(len(input_seq), -1))
-        return predictions[-1]
+	    output, (hn, cn) = self.lstm(x, (h_0, c_0)) #lstm with input, hidden, and internal state
+	   
+	    hn = hn.view(-1, self.hidden_size) #reshaping the data for Dense layer next
 
-#load dataset
-flight_data = sns.load_dataset("flights")
+	    out = self.relu(hn)
 
-"""
-#plot number of passenger per month
-plt.title('Month vs Passenger')
-plt.ylabel('Total Passengers')
-plt.xlabel('Months')
-plt.grid(True)
-plt.autoscale(axis='x',tight=True)
-plt.plot(flight_data['passengers'])
-plt.show()
-"""
+	    out = self.fc_1(out) #first Dense
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+	    out = self.relu(out) #relu
 
-#set all data "passengers" to float
-all_data = flight_data['passengers'].values.astype(float)
-#print(all_data)
+	    out = self.fc(out) #Final Output
+	   
+	    return out 
 
-#parsing all data into test and train datasets
-test_data_size = 12
-train_data = all_data[:-test_data_size]
-test_data = all_data[-test_data_size:]
+##### MAIN #####
+df = pd.read_csv('./data/SBUX.csv', index_col = 'Date', parse_dates=True)
 
-#get min and max value to normalize data
-scaler = MinMaxScaler(feature_range=(-1, 1))
-train_data_normalized = scaler.fit_transform(train_data .reshape(-1, 1))
+X = df.iloc[:, :-1]	#5 first columns
+y = df.iloc[:, 5:6] #last column
 
-#convert training dataset into tensor
-train_data_normalized = torch.FloatTensor(train_data_normalized).view(-1)
+#data preprocessing
+mm = MinMaxScaler()
+ss = StandardScaler()
 
-#sequence length is 12 (12 months in a year)
-train_window = 12
+X_ss = ss.fit_transform(X)
+y_mm = mm.fit_transform(y) 
 
-#dataprep
-train_inout_seq = create_inout_sequences(train_data_normalized, train_window)
+
+#splitting data into training and testing sets
+X_train = X_ss[:200, :]
+X_test = X_ss[200:, :]
+
+y_train = y_mm[:200, :]
+y_test = y_mm[200:, :] 
+
+print("Training Shape", X_train.shape, y_train.shape)	#output X_train[200, 5] 200 lines and 5 columns | y_train[200, 1] 200 lines and 1 feature
+print("Testing Shape", X_test.shape, y_test.shape) 		#output X_test[53, 5] y_test[53, 1]
+
+
+#array to tensor convertion
+X_train_tensors = Variable(torch.Tensor(X_train))
+X_test_tensors = Variable(torch.Tensor(X_test))
+
+y_train_tensors = Variable(torch.Tensor(y_train))
+y_test_tensors = Variable(torch.Tensor(y_test)) 
+
+
+#reshaping to rows, timestamps, features
+#															(length of sequence, 				batch size, 	number of features)
+X_train_tensors_final = torch.reshape(X_train_tensors,   (X_train_tensors.shape[0], 1, X_train_tensors.shape[1]))
+X_test_tensors_final = torch.reshape(X_test_tensors,  (X_test_tensors.shape[0], 1, X_test_tensors.shape[1]))
+
+print("Training Shape", X_train_tensors_final.shape, y_train_tensors.shape)
+#output X_train_tensor([200,1,5]) y_train_tensor([200, 1])
+print("Testing Shape", X_test_tensors_final.shape, y_test_tensors.shape)
+#output X_test_tensor([53,1,5]) y_train_tensor([53, 1])
+
 
 #model creation
-model = LSTM()
-loss_function = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+num_epochs = 1000 #1000 epochs
+learning_rate = 0.001 #0.001 lr
 
-#training model
-epochs = 150
+input_size = 5 #number of features
+hidden_size = 2 #number of features in hidden state
+num_layers = 1 #number of stacked lstm layers
 
-for i in range(epochs):
-    for seq, labels in train_inout_seq:
-        optimizer.zero_grad()
-        model.hidden_cell = (torch.zeros(1, 1, model.hidden_layer_size),
-                        torch.zeros(1, 1, model.hidden_layer_size))
+num_classes = 1 #number of output classes 
 
-        y_pred = model(seq)
+lstm1 = LSTM1(num_classes, input_size, hidden_size, num_layers, X_train_tensors_final.shape[1]) #our lstm class
 
-        single_loss = loss_function(y_pred, labels)
-        single_loss.backward()
-        optimizer.step()
+criterion = torch.nn.MSELoss()    # mean-squared error for regression
+optimizer = torch.optim.RMSprop(lstm1.parameters(), lr=learning_rate)
 
-    if i%5 == 1:
-        print(f'epoch: {i:3} loss: {single_loss.item():10.8f}')
+for epoch in range(num_epochs):
+  outputs = lstm1.forward(X_train_tensors_final) #forward pass
+  optimizer.zero_grad() #caluclate the gradient, manually setting to 0
+ 
+  # obtain the loss function
+  loss = criterion(outputs, y_train_tensors)
+ 
+  loss.backward() #calculates the loss of the loss function
+ 
+  optimizer.step() #improve from loss, i.e backprop
+  if epoch % 100 == 0:
+    print("Epoch: %d, loss: %1.5f" % (epoch, loss.item())) 
 
-print(f'epoch: {i:3} loss: {single_loss.item():10.10f}')
 
-#predictions
-fut_pred = 12
+df_X_ss = ss.transform(df.iloc[:, :-1]) #old transformers
+df_y_mm = mm.transform(df.iloc[:, -1:]) #old transformers
 
-test_inputs = train_data_normalized[-train_window:].tolist()
+df_X_ss = Variable(torch.Tensor(df_X_ss)) #converting to Tensors
+df_y_mm = Variable(torch.Tensor(df_y_mm))
+#reshaping the dataset
+df_X_ss = torch.reshape(df_X_ss, (df_X_ss.shape[0], 1, df_X_ss.shape[1])) 
 
-model.eval()
 
-#prediction for 12 months -> call 12 times prediction of 1 month
-for i in range(fut_pred):
-    seq = torch.FloatTensor(test_inputs[-train_window:])
-    with torch.no_grad():
-        model.hidden = (torch.zeros(1, 1, model.hidden_layer_size),
-                        torch.zeros(1, 1, model.hidden_layer_size))
-        test_inputs.append(model(seq).item())
+train_predict = lstm1(df_X_ss)#forward pass
+data_predict = train_predict.data.numpy() #numpy conversion
+dataY_plot = df_y_mm.data.numpy()
 
-#reverse normalize predicted values
-actual_predictions = scaler.inverse_transform(np.array(test_inputs[train_window:] ).reshape(-1, 1))
+data_predict = mm.inverse_transform(data_predict) #reverse transformation
+dataY_plot = mm.inverse_transform(dataY_plot)
+plt.figure(figsize=(10,6)) #plotting
+plt.axvline(x=200, c='r', linestyle='--') #size of the training set
 
-#index for predicted months
-x = np.arange(132, 132+fut_pred, 1)
-
-#plot predicted values and real values
-plt.title('Month vs Passenger')
-plt.ylabel('Total Passengers')
-plt.grid(True)
-plt.autoscale(axis='x', tight=True)
-plt.plot(flight_data['passengers'])
-plt.plot(x,actual_predictions)
-plt.show()
-
-#plot zoom on predicted values
-plt.title('Month vs Passenger')
-plt.ylabel('Total Passengers')
-plt.grid(True)
-plt.autoscale(axis='x', tight=True)
-
-plt.plot(flight_data['passengers'][-train_window:])
-plt.plot(x,actual_predictions)
+plt.plot(dataY_plot, label='Actuall Data') #actual plot
+plt.plot(data_predict, label='Predicted Data') #predicted plot
+plt.title('Time-Series Prediction')
+plt.legend()
 plt.show()
