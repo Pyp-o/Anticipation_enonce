@@ -54,44 +54,50 @@ class LSTM1(nn.Module):
 	    return out 
 
 ##### MAIN #####
+df = pd.read_csv('./data/SBUX.csv', index_col = 'Date', parse_dates=True)
 
-df = pd.read_csv('SBUX.csv', index_col = 'Date', parse_dates=True)
+X = df.iloc[:, :-1]	#5 first columns
+y = df.iloc[:, 5:6] #last column
 
-X = df.iloc[:, :-1]
-y = df.iloc[:, 5:6] 
-
+#data preprocessing
 mm = MinMaxScaler()
 ss = StandardScaler()
-
 
 X_ss = ss.fit_transform(X)
 y_mm = mm.fit_transform(y) 
 
-#first 200 for training
 
+#splitting data into training and testing sets
 X_train = X_ss[:200, :]
 X_test = X_ss[200:, :]
 
 y_train = y_mm[:200, :]
 y_test = y_mm[200:, :] 
 
-print("Training Shape", X_train.shape, y_train.shape)
-print("Testing Shape", X_test.shape, y_test.shape) 
+print("Training Shape", X_train.shape, y_train.shape)	#output X_train[200, 5] 200 lines and 5 columns | y_train[200, 1] 200 lines and 1 feature
+print("Testing Shape", X_test.shape, y_test.shape) 		#output X_test[53, 5] y_test[53, 1]
 
+
+#array to tensor convertion
 X_train_tensors = Variable(torch.Tensor(X_train))
 X_test_tensors = Variable(torch.Tensor(X_test))
 
 y_train_tensors = Variable(torch.Tensor(y_train))
 y_test_tensors = Variable(torch.Tensor(y_test)) 
 
-#reshaping to rows, timestamps, features
 
+#reshaping to rows, timestamps, features
+#															(length of sequence, 				batch size, 	number of features)
 X_train_tensors_final = torch.reshape(X_train_tensors,   (X_train_tensors.shape[0], 1, X_train_tensors.shape[1]))
-X_test_tensors_final = torch.reshape(X_test_tensors,  (X_test_tensors.shape[0], 1, X_test_tensors.shape[1])) 
+X_test_tensors_final = torch.reshape(X_test_tensors,  (X_test_tensors.shape[0], 1, X_test_tensors.shape[1]))
 
 print("Training Shape", X_train_tensors_final.shape, y_train_tensors.shape)
-print("Testing Shape", X_test_tensors_final.shape, y_test_tensors.shape) 
+#output X_train_tensor([200,1,5]) y_train_tensor([200, 1])
+print("Testing Shape", X_test_tensors_final.shape, y_test_tensors.shape)
+#output X_test_tensor([53,1,5]) y_train_tensor([53, 1])
 
+
+#model creation
 num_epochs = 1000 #1000 epochs
 learning_rate = 0.001 #0.001 lr
 
@@ -104,7 +110,7 @@ num_classes = 1 #number of output classes
 lstm1 = LSTM1(num_classes, input_size, hidden_size, num_layers, X_train_tensors_final.shape[1]) #our lstm class
 
 criterion = torch.nn.MSELoss()    # mean-squared error for regression
-optimizer = torch.optim.Adam(lstm1.parameters(), lr=learning_rate) 
+optimizer = torch.optim.RMSprop(lstm1.parameters(), lr=learning_rate)
 
 for epoch in range(num_epochs):
   outputs = lstm1.forward(X_train_tensors_final) #forward pass
@@ -142,4 +148,4 @@ plt.plot(dataY_plot, label='Actuall Data') #actual plot
 plt.plot(data_predict, label='Predicted Data') #predicted plot
 plt.title('Time-Series Prediction')
 plt.legend()
-plt.show() 
+plt.show()

@@ -20,14 +20,16 @@ def parse_window(passengers, window):
     return result
 
 def sliding_window(passengers, window):
-    result = []
+    X = []
+    y = []
     data = []
     i=0
     while(i+window+1<len(passengers)):
         data = passengers[i :i+window]
-        result.append((data, passengers[i+window+1]))
+        X.append(data)
+        y.append(passengers[i+window+1])
         i+=1
-    return result
+    return X, y
 
 class DS(Dataset):
     def __init__(self, X_train, y_train):
@@ -57,16 +59,16 @@ class Model(nn.Module):
         #self.lstm2 = nn.LSTM(input_size=hidden_size, hidden_size=hidden_size*2, num_layers=num_layers, batch_first=True, bidirectional=False)    #second lstm layer
         self.fc = nn.Linear(hidden_size, output_size) #linear layer to convert hidden processed data into 1 prediction
 
-    def forward(self, x):
-        h0_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size))  #hidden layer init to 0
-        c0_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size))
+    def forward(self, x, device):
+        h0_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size)).to(device)  #hidden layer init to 0
+        c0_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size)).to(device)
         x, (hn, cn) = self.lstm1(x, (h0_0, c0_0))
         """
         h0_1 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size*2))
         c0_1 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size*2))
         x, (hn, cn) = self.lstm2(x.view(len(x) ,self.batch_size , -1), (h0_1,c0_1))
         """
-        x = self.fc(x)
+        x = self.fc(x).to(device)
 
         return x
 
@@ -83,31 +85,31 @@ passengers = flight_data['passengers'].values.astype(float)
 scaler = MinMaxScaler(feature_range=(-1, 1))
 data_normalized = scaler.fit_transform(passengers.reshape(-1, 1))
 
-data_normalized = torch.FloatTensor(data_normalized).view(-1)
-
-train_dataset = sliding_window(data_normalized, 12)
+X_train, y_train = sliding_window(data_normalized, 12)
 test_dataset = parse_window(data_normalized,12)
+
+X_train = torch.FloatTensor(X_train)
+y_train = torch.FloatTensor(y_train)
+
+X_train = torch.reshape(X_train, (X_train.shape[0], -1, 1)).to(device)
+y_train = torch.reshape(y_train, (y_train.shape[0], 1, 1)).to(device)
 
 ######### MODEL #########
 #model
-model = Model()
+model = Model().to(device)
 loss_function = nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
 
-epochs = 10
-
+epochs = 250
 
 for i in range(epochs):
-    for seq, labels in train_dataset:
-        seq = seq.reshape(12,1,-1)
-        model.train()
-        optimizer.zero_grad()
-        y_pred = model(seq)
+    model.train()
+    optimizer.zero_grad()
+    y_pred = model(X_train, device).to(device)
 
-        single_loss = loss_function(y_pred, labels)
-        single_loss.backward()
-        optimizer.step()
-
+    single_loss = loss_function(y_pred, y_train)
+    single_loss.backward()
+    optimizer.step()
     if i%5 == 1:
         print(f'epoch: {i:3} loss: {single_loss.item():10.8f}')
 
@@ -115,7 +117,10 @@ print(f'epoch: {i:3} loss: {single_loss.item():10.10f}')
 
 pred_data = []
 real_pred_data = []
-pred = model(seq)
+pred = model(X_train, device).to(device)
+
+#moving back tensors to CPU to treat tensors as numpy array
+pred = pred.cpu()
 
 for p in pred:
     pred_data.append(p.data.numpy())
