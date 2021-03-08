@@ -1,15 +1,7 @@
 import torch
-import torch.autograd as autograd
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.autograd import Variable
-import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
 import seaborn as sns
-import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-
 
 def parse_window(passengers, window):
     result = []
@@ -31,20 +23,6 @@ def sliding_window(passengers, window):
         i+=1
     return X, y
 
-class DS(Dataset):
-    def __init__(self, X_train, y_train):
-        self.X_train = X_train
-        self.y_train = y_train
-
-    def __len__(self):
-        return len(self.y_train)
-
-    def __getitem__(self, item):
-        data = self.X_train[item, :]
-        labels = self.y_train[item, :]
-
-        return data, labels
-
 class Model(nn.Module):
     def __init__(self, input_size=1, hidden_size=256, output_size=1, num_layers=1, seq_length=12, batch_size=1):
         super().__init__()
@@ -60,8 +38,8 @@ class Model(nn.Module):
         self.fc = nn.Linear(hidden_size, output_size) #linear layer to convert hidden processed data into 1 prediction
 
     def forward(self, x, device):
-        h0_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size)).to(device)  #hidden layer init to 0
-        c0_0 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size)).to(device)
+        h0_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)  #hidden layer init to 0
+        c0_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
         x, (hn, cn) = self.lstm1(x, (h0_0, c0_0))
         """
         h0_1 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size*2))
