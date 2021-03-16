@@ -1,0 +1,9 @@
+8 mars au  12 mars
+Fait :
+- Utilisation des LSTM sous PyTorch comprise
+- Utilisation des word embeddings compris (projection de mots dans espace vectoriel)
+
+
+A faire:
+- Pas d'outils pour convertir un vecteur en mot -> trouver une méthode pour le faire
+- Utiliser les outils PyTorch pour la recherche hyperparamétrique

@@ -38,7 +38,7 @@ class Model(nn.Module):
         self.fc = nn.Linear(hidden_size, output_size) #linear layer to convert hidden processed data into 1 prediction
 
     def forward(self, x, device):
-        h0_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)  #hidden layer init to 0
+        h0_0 = torch.randn(self.num_layers, x.size(0), self.hidden_size).to(device)  #hidden layer random init
         c0_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
         x, (hn, cn) = self.lstm1(x, (h0_0, c0_0))
         """
@@ -46,7 +46,7 @@ class Model(nn.Module):
         c0_1 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size*2))
         x, (hn, cn) = self.lstm2(x.view(len(x) ,self.batch_size , -1), (h0_1,c0_1))
         """
-        x = self.fc(x).to(device)
+        x = self.fc(x)
 
         return x
 
