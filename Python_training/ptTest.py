@@ -67,4 +67,5 @@ study = optuna.create_study(sampler=optuna.samplers.GridSampler)
 print(f"Sampler is {study.sampler.__class__.__name__}")
 """
 
-#PART4 pruning algorithms (early stop) 
+#PART4 pruning algorithms (early stop)
+# je fais un changement pour voir
