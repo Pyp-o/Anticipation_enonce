@@ -51,5 +51,4 @@ index = random.randint(0, len(word_to_ix)-1)
 
 #word to vector to tensor
 embeds = torchtext.vocab.FastText('en')
-print(embeds)
-
+print(embeds['democracy'])
