@@ -1,3 +1,9 @@
+#------------------------------#
+"""
+PyTorch permet de créer des modèles de word embedding from scratch et de passer d'un vecteur à un mot en cherchant la distance euclidienne la plus faible entre deux vecteurs
+Celle-ci se calcule par le dot-product des vecteurs, pour trouver la distance minimale, il faut un dot-product maximal
+"""
+#------------------------------#
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

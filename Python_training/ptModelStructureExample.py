@@ -1,3 +1,8 @@
+#------------------------------#
+"""
+Un exemple de modèle correctement structuré
+"""
+#------------------------------#
 from pathlib import Path
 import requests
 import pickle

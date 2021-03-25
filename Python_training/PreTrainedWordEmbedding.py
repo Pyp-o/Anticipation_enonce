@@ -1,3 +1,9 @@
+#------------------------------#
+"""
+Gensim permet ici de charger un modèle de word embedding pré-entraîné : GloVe
+Cela permet également de reverse un vecteur vers un mot simplement
+"""
+#------------------------------#
 from gensim.models import KeyedVectors
 
 # load the Stanford GloVe model

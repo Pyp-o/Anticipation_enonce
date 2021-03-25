@@ -1,3 +1,9 @@
+#------------------------------#
+"""
+Voici un script déclarant un LSTM faisant des prédictions d'entier
+Il se sert ici de cuda (GPU) s'il est disponible, sinon du CPU
+"""
+#------------------------------#
 import torch
 import torch.nn as nn
 import seaborn as sns

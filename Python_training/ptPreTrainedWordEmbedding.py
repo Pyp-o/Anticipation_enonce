@@ -1,7 +1,9 @@
+#------------------------------#
+"""
+PyTorch permet de charger des modèles pré-entraînés, cependant il ne permet pas de passer d'un vecteur à un mot
+"""
+#------------------------------#
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
 import random
 import torchtext
 

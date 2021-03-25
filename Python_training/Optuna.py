@@ -1,3 +1,10 @@
+#------------------------------#
+"""
+Optuna est une librairie python permettant de faire des recherches hyperparamétriques
+Dans ce script, des cas très simples sont décrits, mais ils permettent de déclarer des
+hyperparamètres (int, float, categories)
+"""
+#------------------------------#
 import optuna
 
 # PART 1 get important results
