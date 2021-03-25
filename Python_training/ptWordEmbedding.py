@@ -34,7 +34,7 @@ def print3DVectors(vectors):
     plt.show()
     return 0
 
-def returnEmbedding(model, vector, ix_to_word):
+def reverseEmbedding(model, vector, ix_to_word):
     distance = torch.norm(model.embeddings.weight.data - vector, dim=1)
     nearest = torch.argmin(distance)
     nearest = int(nearest.numpy())
@@ -132,7 +132,7 @@ index = 4
 tens = wordEmbed(index,word_to_ix,ix_to_word, model)
 
 #vect to word
-word = returnEmbedding(model, tens, ix_to_word)
+word = reverseEmbedding(model, tens, ix_to_word)
 print(word)
 print(tens)
 print3DVectors(tens.detach().numpy())
