@@ -1,9 +1,8 @@
 première analyse : relation de la nature des données et apprentissage
 
 TODO 1) modele LSTM avec encodage simple
-TODO 2) faire varier les tailles de l'input et de l'output
-TODO 3) encodage int, binaire (hexa), one-hot-encoding, index random
-TODO 4) encodage du vocabulaire dans l'ordre alphabétique, puis ordre random 
+TODO 2) encodage int, binaire (hexa), one-hot-encoding, index random
+TODO 3) encodage du vocabulaire dans l'ordre alphabétique, puis ordre random
 
 Quelles phrases seront bien pour prédire la fin + explication hypothèse
 
