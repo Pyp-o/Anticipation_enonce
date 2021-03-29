@@ -1,0 +1,48 @@
+Sujet de stage : Anticipation de la reconnaissance de l'énoncé de l'utilisateur pour un agent conversationnel
+
+Problème posé : Complétion de phrase -> (Reconnaissance vocale), NLU partiel
+
+############## Poitnts à régler ##############
+
+- Data preparation :
+	1) encoding / decoding
+	2) scaling
+	3) padding
+	4) cutting
+	5) data length
+
+- Model Architecture :
+	1) LSTM size
+	2) single or multiple input
+	3) stacked LSTM
+	4) Encoder - Decoder
+	5) Generative model
+		a- word-level
+		b- character-level
+
+- Training :
+	1) which dataset
+	2) which hyperparameters
+
+- Save model :
+	1) format
+	2) what to save
+
+############## Points à régler ##############
+
+############## Protocole de recherche ##############
+Model construction :
+1) import data
+2) clean data
+3) parse data (training, testing, validation set)
+4) convert to tensor
+5) create model
+6) train model
+7) predict
+8) convert predicted data to get sense
+9) test results
+10) test model
+
+Optimization:
+1) repeat model construction by changing 1 feature at a time to control its influence
+2) Save every modification and every model to trace changes and results
