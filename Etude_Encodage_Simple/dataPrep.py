@@ -107,7 +107,7 @@ def encodeWord(vocab, type='index'):
     return word_to_ix, ix_to_word
 
 """ -------------------------------------------------------------------------
-# split X and y from dataset
+# split X and y from dataset                                                #
 -------------------------------------------------------------------------"""
 def splitX_y(dataset, length):
     X = []
@@ -116,3 +116,30 @@ def splitX_y(dataset, length):
         X.append(phrase.split()[:length])
         y.append(phrase.split()[length:])
     return X,y
+
+""" -------------------------------------------------------------------------
+# convert words to ix                                                       #
+# input : array [["word1", "word2" ...],["word1", "word2" ...]]
+-------------------------------------------------------------------------"""
+def convertWordstoIx(dataset, word_to_ix):
+    data = []
+    for i in range(len(dataset)):
+        phrase = dataset[i]
+        encodedPhrase = []
+        for j in range(len(phrase)):
+            encodedPhrase.append(word_to_ix[phrase[j].lower()])
+        data.append(encodedPhrase)
+    return data
+
+
+def rmSpaces(dataset):
+    data = []
+    for phrase in dataset:
+        ph = ""
+        for i in range(len(phrase.split())):
+            if i < len(phrase.split()):
+                ph += phrase.split()[i].lower() + " "
+            else:
+                ph += phrase.split()[i].lower()
+        data.append(ph)
+    return data
