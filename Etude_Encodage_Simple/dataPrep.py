@@ -1,6 +1,7 @@
 import string
 import re
-
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 
 """ -------------------------------------------------------------------------
 # each dialog is separated by a return                                      #
@@ -119,9 +120,9 @@ def splitX_y(dataset, length):
 
 """ -------------------------------------------------------------------------
 # convert words to ix                                                       #
-# input : array [["word1", "word2" ...],["word1", "word2" ...]]
+# input : array [["word1", "word2" ...],["word1", "word2" ...]]             #
 -------------------------------------------------------------------------"""
-def convertWordstoIx(dataset, word_to_ix):
+def convertPhrasetoIx(dataset, word_to_ix):
     data = []
     for i in range(len(dataset)):
         phrase = dataset[i]
@@ -131,7 +132,9 @@ def convertWordstoIx(dataset, word_to_ix):
         data.append(encodedPhrase)
     return data
 
-
+""" -------------------------------------------------------------------------
+# remove spaces injected during parsing and cleaning data                   #
+-------------------------------------------------------------------------"""
 def rmSpaces(dataset):
     data = []
     for phrase in dataset:
@@ -143,3 +146,23 @@ def rmSpaces(dataset):
                 ph += phrase.split()[i].lower()
         data.append(ph)
     return data
+
+""" -------------------------------------------------------------------------
+# convert an array shape ['word0', 'word1', 'word2', 'word3' ...] to ix     #
+-------------------------------------------------------------------------"""
+def convertWordstoIx(dataset, word_to_ix):
+    data = []
+    for i in range(len(dataset)):
+        data.append(word_to_ix[dataset[i].lower()])
+    return data
+
+def fitScaler(dataset, word_to_ix, min=-1, max=1):
+    data = []
+    for phrase in dataset:
+        for word in phrase.split():
+            data.append(word)
+    test = convertWordstoIx(data, word_to_ix)
+    test = np.reshape(test, (-1, 1))
+    scaler = MinMaxScaler(feature_range=(min, max))
+    scaler = scaler.fit(test)
+    return scaler
