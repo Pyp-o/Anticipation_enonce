@@ -1,0 +1,8 @@
+22 mars au 26 mars
+Fait :
+- Ré-installation de Linux pour utilisation de fasttext
+- Abandon de librairie fasttext ne permettant pas de passer d'un vecteur prédit à un mot
+- Utilisation de Gensim pour des modèles de word embedding permettant de passer d'un mot à un vecteur et inversement
+
+A faire:
+- LSTM simple avec encodage simple pour étudier l'impact de l'encodage sur les prédictions du LSTM
