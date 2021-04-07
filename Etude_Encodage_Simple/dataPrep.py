@@ -2,6 +2,11 @@ import string
 import re
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
+import random
+import torch
+import math
+
+
 
 """ -------------------------------------------------------------------------
 # each dialog is separated by a return                                      #
@@ -119,20 +124,6 @@ def splitX_y(dataset, length):
     return X,y
 
 """ -------------------------------------------------------------------------
-# convert words to ix                                                       #
-# input : array [["word1", "word2" ...],["word1", "word2" ...]]             #
--------------------------------------------------------------------------"""
-def convertPhrasetoIx(dataset, word_to_ix):
-    data = []
-    for i in range(len(dataset)):
-        phrase = dataset[i]
-        encodedPhrase = []
-        for j in range(len(phrase)):
-            encodedPhrase.append(word_to_ix[phrase[j].lower()])
-        data.append(encodedPhrase)
-    return data
-
-""" -------------------------------------------------------------------------
 # remove spaces injected during parsing and cleaning data                   #
 -------------------------------------------------------------------------"""
 def rmSpaces(dataset):
@@ -148,6 +139,20 @@ def rmSpaces(dataset):
     return data
 
 """ -------------------------------------------------------------------------
+# convert words to ix                                                       #
+# input : array [["word1", "word2" ...],["word1", "word2" ...]]             #
+-------------------------------------------------------------------------"""
+def convertPhrasetoIx(dataset, word_to_ix):
+    data = []
+    for i in range(len(dataset)):
+        phrase = dataset[i]
+        encodedPhrase = []
+        for j in range(len(phrase)):
+            encodedPhrase.append(word_to_ix[phrase[j].lower()])
+        data.append(encodedPhrase)
+    return data
+
+""" -------------------------------------------------------------------------
 # convert an array shape ['word0', 'word1', 'word2', 'word3' ...] to ix     #
 -------------------------------------------------------------------------"""
 def convertWordstoIx(dataset, word_to_ix):
@@ -156,6 +161,24 @@ def convertWordstoIx(dataset, word_to_ix):
         data.append(word_to_ix[dataset[i].lower()])
     return data
 
+def convertIxtoPhrase(dataset, ix_to_word):
+    data = []
+    for phrase in dataset:
+        p = []
+        for i in range(len(phrase)):
+            if phrase[i]-int(phrase[i])==0.5:
+                print("!")
+                p.append(ix_to_word[math.ceil(phrase[i])])  #arrondi inférieur
+                p.append(ix_to_word[math.floor(phrase[i])]) #arrondi supérieur
+            else :
+                p.append(ix_to_word[round(phrase[i])])
+        data.append(p)
+    return data
+
+""" -------------------------------------------------------------------------
+# crate a scaler and fit it                                                 #
+# allow to fit on the whole dataset, not just the parsed one                #
+-------------------------------------------------------------------------"""
 def fitScaler(dataset, word_to_ix, min=-1, max=1):
     data = []
     for phrase in dataset:
@@ -166,3 +189,18 @@ def fitScaler(dataset, word_to_ix, min=-1, max=1):
     scaler = MinMaxScaler(feature_range=(min, max))
     scaler = scaler.fit(test)
     return scaler
+
+""" -------------------------------------------------------------------------
+# reverse predicted tensor from gpu to cpu and from torch.tensor            #
+# to numpy.array                                                            #
+-------------------------------------------------------------------------"""
+def reverseTensor(tensors):
+    converted = []
+    for tensor in tensors:
+        a = []
+        tensor = tensor.cpu()
+        tensor = tensor.detach().numpy()
+        for value in tensor[0]:
+            a.append(value[0])
+        converted.append(a)
+    return converted

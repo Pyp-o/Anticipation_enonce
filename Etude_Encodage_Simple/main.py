@@ -1,7 +1,13 @@
 import torch
 import dataPrep
 import models
+import numpy as np
+import random
 
+SEED = 0
+np.random.seed(SEED)
+random.seed(SEED)
+torch.manual_seed(SEED)
 
 ############### MAIN ###############
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -28,22 +34,23 @@ data = dataPrep.rmSpaces(data)
 #word encoding
 word_to_ix, ix_to_word = dataPrep.encodeWord(vocab, 'index')
 
+#scaler creationa and fitting
 scaler = dataPrep.fitScaler(data, word_to_ix)
 
 #limit lenght of each phrase to 8 words
-data = dataPrep.limitLength(data, 8)
-data = data[:10]
+data = dataPrep.limitLength(data, 6)
+data = data[:100]
 print("vocabulary construction")
 
 #split dataset into trainset and testset
-ind = int(len(data)*0.7)
+ind = int(len(data)*0.95)
 train = data[:ind]
 test = data[ind:]
 
 print("split data into sets")
 #split sets into input and output for training and testing
-X_train, y_train = dataPrep.splitX_y(train, 4)
-X_test, y_test = dataPrep.splitX_y(test, 4)
+X_train, y_train = dataPrep.splitX_y(train, 3)
+X_test, y_test = dataPrep.splitX_y(test, 3)
 
 print("convert words into numbers")
 #convert words to ix
@@ -71,35 +78,38 @@ T_y_test = []
 for i in range(len(X_train)):
     T_X_train.append(torch.FloatTensor(X_train[i]))
     T_y_train.append(torch.FloatTensor(y_train[i]))
-
 for i in range(len(X_train)):
-    T_X_train[i] = torch.reshape(T_X_train[i], (1, 4, 1)).to(device)
-    T_y_train[i] = torch.reshape(T_y_train[i], (1, 4, 1)).to(device)
+    T_X_train[i] = torch.reshape(T_X_train[i], (1, 3, 1)).to(device)
+    T_y_train[i] = torch.reshape(T_y_train[i], (1, 3, 1)).to(device)
 
 for i in range(len(X_test)):
     T_X_test.append(torch.FloatTensor(X_test[i]))
     T_y_test.append(torch.FloatTensor(y_test[i]))
-
 for j in range(len(X_test)):
-    T_X_test[j] = torch.reshape(T_X_test[j], (1, 4, 1)).to(device)
-    T_y_test[j] = torch.reshape(T_y_test[j], (1, 4, 1)).to(device)
+    T_X_test[j] = torch.reshape(T_X_test[j], (1, 3, 1)).to(device)
+    T_y_test[j] = torch.reshape(T_y_test[j], (1, 3, 1)).to(device)
 
 
 print("model declaration")
 #model declaration
 model = models.LSTM(input_size=1, hidden_size=4, nfeatures=1, num_layers=2).to(device)
 loss_function = torch.nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-epochs = 100
+epochs = 1000
 batch_size = 4
 
+train_phrase = []
+
 print("training model")
+#model training
 for i in range(epochs):
     for j in range(len(T_X_train)):
         model.train()
         optimizer.zero_grad()
         y_pred = model(T_X_train[j], device).to(device)
+
+        train_phrase.append(T_X_train[j]+T_y_train[j])
 
         single_loss = loss_function(y_pred, T_y_train[j])
         single_loss.backward()
@@ -110,6 +120,7 @@ for i in range(epochs):
 print(f'epoch: {i:3} loss: {single_loss.item():10.4f}')
 
 print("model predicting")
+#model predictions
 predictions = []
 l = len(T_X_test)
 for j in range(l):
@@ -117,20 +128,25 @@ for j in range(l):
 
 print("reverse predicted tensors to CPU")
 #moving back tensors to CPU to treat tensors as numpy array
-converted = []
-for p in predictions:
-    a = []
-    p = p.cpu()
-    p = p.detach().numpy()
-    for t in p[0]:
-        a.append(t[0])
-    converted.append(a)
+converted = dataPrep.reverseTensor(predictions)
 
-print(converted)
+start = T_X_train[:l]
+start = dataPrep.reverseTensor(start)
+start = scaler.inverse_transform(start)
 converted = scaler.inverse_transform(converted)
-print(converted)
-print(scaler.inverse_transform(y_test))
+expected = scaler.inverse_transform(y_train)
 
-#TODO comment decoder output of LSTM
+print("input :",start)
+print("predicted :", converted)
+print("output :", expected[:l])
+
+start = dataPrep.convertIxtoPhrase(start, ix_to_word)
+converted = dataPrep.convertIxtoPhrase(converted, ix_to_word)
+expected = dataPrep.convertIxtoPhrase(expected, ix_to_word)
+
+print("input :",start)
+print("predicted :", converted)
+print("output :", expected[:l])
+
 #TODO impact de la couche de sortie sur les performances (Linear, Tanh, Sigmoid, etc...)
 #TODO mesurer impact loss function et optimizer (attention de ne pas faire d'associations peu fiables)
