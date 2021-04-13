@@ -94,23 +94,38 @@ def vocabConstruct(tab):
 
 """ -------------------------------------------------------------------------
 # encode word                                                               #
-# multiple encoding possibilities : index
+# multiple encoding possibilities : index, one-hot encoding, word embedding
 -------------------------------------------------------------------------"""
-def encodeWord(vocab, type='index'):
+def encodeWord(vocab, type='oneHot'):
     if type == 'index':         #
         word_to_ix = {word: i for i, word in enumerate(vocab)}
         ix_to_word = {i: word for i, word in enumerate(vocab)}
-    elif type == 'binaire':
-        raise NameError('Not implemented yet')
-    elif type == 'hexa':
-        raise NameError('Not implemented yet')
+        return word_to_ix, ix_to_word
+
     elif type == 'oneHot':
+        data = []
+        n_features = len(vocab)
+
+        for i in range(n_features):
+            ar = list(np.zeros(n_features, dtype=int))
+            ar[i] = 1
+            data.append(tuple(ar))
+        vocab = tuple(vocab)
+        data = tuple(data)
+
+        word_to_oneHot = {vocab[i]: data[i] for i in range(n_features)}
+        oneHot_to_word = {data[i]: vocab[i] for i in range(n_features)}
+        word_to_ix = {word: i for i, word in enumerate(vocab)}
+        ix_to_word = {i: word for i, word in enumerate(vocab)}
+
+        return word_to_oneHot, oneHot_to_word, word_to_ix , ix_to_word, n_features
+
+    elif type == 'wordEncoding':
         raise NameError('Not implemented yet')
-    elif type == 'notConitnuousIndex':
-        raise NameError('Not implemented yet')
+        return word_to_ix, ix_to_word
     else:
-        NameError('Invalid encoding type')
-    return word_to_ix, ix_to_word
+        raise NameError('Invalid encoding type')
+        return word_to_ix, ix_to_word
 
 """ -------------------------------------------------------------------------
 # split X and y from dataset                                                #
@@ -161,6 +176,9 @@ def convertWordstoIx(dataset, word_to_ix):
         data.append(word_to_ix[dataset[i].lower()])
     return data
 
+""" -------------------------------------------------------------------------
+# convert an array shape ['ix0', 'ix1', 'ix2', 'ix3' ...] to word           #
+-------------------------------------------------------------------------"""
 def convertIxtoPhrase(dataset, ix_to_word):
     data = []
     for phrase in dataset:
@@ -204,3 +222,34 @@ def reverseTensor(tensors):
             a.append(value[0])
         converted.append(a)
     return converted
+
+def oneHotClean(dataset, ix_to_word):
+    data = []
+    for phrase in dataset:
+        for words in phrase:
+            ph = []
+            for word in words:
+                w = []
+                index = 0
+                max = -10
+                for i in range(len(word)):
+                    if word[i] > max:
+                        max = word[i]
+                        index = i
+                for i in range(len(word)):
+                    if i == index:
+                        w.append(1)
+                    else:
+                        w.append(0)
+                ph.append(ix_to_word[tuple(w)])
+            data.append(ph)
+    return data
+
+def reverseOneHot(dataset, ix_to_word):
+    data = []
+    for phrase in dataset:
+        ph = []
+        for words in phrase:
+            ph.append(ix_to_word[words])
+        data.append(ph)
+    return data
