@@ -28,8 +28,6 @@ Problème posé : Complétion de phrase -> (Reconnaissance vocale), NLU partiel
 	1) format
 	2) what to save
 
-############## Points à régler ##############
-
 ############## Protocole de recherche ##############
 Model construction :
 1) import data
@@ -46,3 +44,8 @@ Model construction :
 Optimization:
 1) repeat model construction by changing 1 feature at a time to control its influence
 2) Save every modification and every model to trace changes and results
+
+############## Tests du LSTM ##############
+1) Génération d'un corpus avec des récurences maîtrisées
+2) Ajout de random
+3) Prédiction du prochain mot (non pas de la fin de la phrase)

@@ -2,11 +2,7 @@ import string
 import re
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
-import random
-import torch
 import math
-
-
 
 """ -------------------------------------------------------------------------
 # each dialog is separated by a return                                      #
