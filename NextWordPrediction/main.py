@@ -9,8 +9,8 @@ SEED = 0
 np.random.seed(SEED)
 random.seed(SEED)
 torch.manual_seed(SEED)
-
 n_features = 100
+epochs = 2000
 
 ############### MAIN ###############
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -60,12 +60,6 @@ y_train = dataPrep.convertPhrasetoIx(y_train, glove)
 X_test = dataPrep.convertPhrasetoIx(X_test, glove)
 y_test = dataPrep.convertPhrasetoIx(y_test, glove)
 
-print(len(X_train))
-print(len(y_train))
-
-print(len(X_test))
-print(len(y_test))
-
 print("converting arrays to tensors...")
 T_X_train = []
 T_y_train = []
@@ -91,15 +85,11 @@ print("y", len(T_y_train))
 print("X_test", len(T_X_test))
 print("y_test", len(T_y_test))
 
-#del X_train, y_train
-
 print("model declaration")
 #model declaration
 model = models.LSTM(hidden_size=512, nfeatures=n_features, num_layers=2).to(device) #2 couches 512 cells pour 26000 mots
 loss_function = torch.nn.MSELoss(reduction='mean')
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
-
-epochs = 2000
 
 print("training model")
 #model training
@@ -114,7 +104,6 @@ for i in range(epochs):
         model.zero_grad()
     if i%5 == 1:
         print(f'epoch: {i-1:3} loss: {single_loss.item():10.10f}')
-
 print(f'epoch: {i+1:3} loss: {single_loss.item():10.10f}')
 
 print("model predicting")
@@ -146,6 +135,5 @@ print("input", inp)
 print("expected", out)
 print("predicted", predictions)
 
-#TODO tester de nuit avec corpus entier et ~10000 epochs
-#TODO modifier loss function pour l'encodage index
+#TODO faire un split des phrases propre pour un batch plus etendu (laisser tomber la phrase entierement lorsqu'elle
 

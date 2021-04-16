@@ -1,0 +1,8 @@
+29 mars au 2 avril
+Fait :
+- implémentation d'un modèle pour faire de la prédiction de fin de phrase avec encodage en index
+- encodage par entier non fonctionnel, test avec un rescale des indices entre [-1;1]
+- test avec changement du nombre de couches et de cellules LSTM par couches
+
+A faire:
+- LSTM simple avec encodage one hot

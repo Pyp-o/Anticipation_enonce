@@ -1,0 +1,8 @@
+12 avril au 16 avril
+Fait :
+- test des limites des LSTM avec une génération de données manuelle pour controler les récurences et l'encodage
+- changement de l'encodage (word embedding) des mots pour un modèle ne prédisant que le mot suivant et non la fin de la phrase
+
+A faire:
+- changement de la fonction de loss pour les modèles avec encodage en index et en one hot
+- faire une séparation des données plus propre pour le modèle word embedding

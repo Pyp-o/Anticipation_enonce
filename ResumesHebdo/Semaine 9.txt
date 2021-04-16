@@ -1,0 +1,6 @@
+5 avril au 9 avril
+Fait :
+- implémentation d'un modèle pour faire de la prédiction de fin de phrase avec encodage one hot
+- encodage par entier non fonctionnel, test avec un une autre loss_function mais difficultés d'implémentation empechent le fonctionnement
+
+A faire:
