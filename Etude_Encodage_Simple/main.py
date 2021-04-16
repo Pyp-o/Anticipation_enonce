@@ -80,15 +80,15 @@ T_X_test = []
 T_y_test = []
 #convert arrays as tensors
 for i in range(len(X_train)):
-    T_X_train.append(torch.tensor(X_train[i], dtype=torch.float))
-    T_y_train.append(torch.tensor(y_train[i]))
+    T_X_train.append(torch.FloatTensor(X_train[i]))
+    T_y_train.append(torch.FloatTensor(y_train[i]))
 for i in range(len(X_train)):
     T_X_train[i] = torch.reshape(T_X_train[i], (1, -1, n_features)).to(device)
     T_y_train[i] = torch.reshape(T_y_train[i], (1, -1, n_features)).to(device)
 
 for i in range(len(X_test)):
-    T_X_test.append(torch.tensor(X_test[i], dtype=torch.float))
-    T_y_test.append(torch.tensor(y_test[i]))
+    T_X_test.append(torch.FloatTensor(X_test[i]))
+    T_y_test.append(torch.FloatTensor(y_test[i]))
 for j in range(len(X_test)):
     T_X_test[j] = torch.reshape(T_X_test[j], (1, -1, n_features)).to(device)
     T_y_test[j] = torch.reshape(T_y_test[j], (1, -1, n_features)).to(device)
@@ -100,10 +100,10 @@ print(T_X_train[0].shape)
 print("model declaration")
 #model declaration
 model = models.LSTM(hidden_size=5, nfeatures=n_features, num_layers=2).to(device) #2 couches 512 cells pour 26000 mots
-loss_function = torch.nn.CTCLoss(reduction='sum')
+loss_function = torch.nn.MSELoss(reduction='sum')
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-epochs = 500
+epochs = 5
 batch_size = 4
 
 loss = []
@@ -114,7 +114,7 @@ for i in range(epochs):
     model.train()
     for j in range(len(T_X_train)):
         y_pred = model(T_X_train[j], device).to(device)
-        single_loss = loss_function(y_pred, T_y_train[j], torch.tensor([1, 3, n_features], dtype=torch.int), torch.tensor([1, 3, n_features], dtype=torch.int))
+        single_loss = loss_function(y_pred, T_y_train[j])
         loss.append(single_loss.item())
 
         single_loss.backward()
@@ -138,8 +138,8 @@ for i in range(len(predictions)):
     predictions[i] = predictions[i].cpu().detach().numpy()
 
 inp = dataPrep.reverseOneHot(X_train[:l], oneHot_to_word)
-out = dataPrep.reverseOneHot(y_train[:l], ix_to_word)
-predictions = dataPrep.oneHotClean(predictions, ix_to_word)
+out = dataPrep.reverseOneHot(y_train[:l], oneHot_to_word)
+predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
 
 print("input:", inp)
 print("predicted", predictions)
