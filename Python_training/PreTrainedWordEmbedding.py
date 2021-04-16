@@ -7,7 +7,7 @@ Cela permet également de reverse un vecteur vers un mot simplement
 from gensim.models import KeyedVectors
 
 # load the Stanford GloVe model
-filename = './embedding/glove.6B.100d.txt.word2vec'
+filename = '../embedding/glove.6B.100d.txt.word2vec'
 model = KeyedVectors.load_word2vec_format(filename, binary=False)
 
 # calculate: (king - man) + woman = ?
