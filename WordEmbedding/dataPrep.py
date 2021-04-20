@@ -130,8 +130,8 @@ def splitX_y(dataset, length):
     X = []
     y = []
     for phrase in dataset:
-        X.append(phrase.split()[:length])
-        y.append(phrase.split()[length:])
+        X.append(phrase[:length])
+        y.append(phrase[length:])
     return X,y
 
 """ -------------------------------------------------------------------------
@@ -155,18 +155,17 @@ def rmSpaces(dataset):
 -------------------------------------------------------------------------"""
 def convertPhrasetoIx(dataset, word_to_ix):
     data = []
-    for i in range(len(dataset)):
-        phrase = dataset[i]
+    fail = 0
+    for phrase in dataset:
         encodedPhrase = []
-        for j in range(len(phrase)):
+        for word in phrase.split():
             try:
-                encodedPhrase.append(word_to_ix.get_vector(phrase[j].lower()))
+                encodedPhrase.append(word_to_ix.get_vector(word.lower()))
             except:
                 encodedPhrase = []
                 break
-        if encodedPhrase==[]:
-            break
-        data.append(encodedPhrase)
+        if encodedPhrase!=[]:
+            data.append(encodedPhrase)
     return data
 
 """ -------------------------------------------------------------------------
