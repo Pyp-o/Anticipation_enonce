@@ -82,7 +82,7 @@ for j in range(len(X_test)):
 print("model declaration")
 #model declaration
 model = models.LSTM(hidden_size=512, nfeatures=n_features, num_layers=2).to(device) #2 couches 512 cells pour 26000 mots
-loss_function = torch.nn.MSELoss(reduction='sum')
+loss_function = torch.nn.MSELoss(reduction='mean')
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
 print("training model")

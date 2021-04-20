@@ -12,8 +12,6 @@ class LSTM(nn.Module):
         self.fc = nn.Linear(hidden_size, nfeatures) #linear layer to convert hidden processed data into 1 prediction
 
     def forward(self, x, device):
-        h0_0 = torch.randn(self.num_layers, x.size(0), self.hidden_size).to(device)     #hidden layer random init
-        c0_0 = torch.randn(self.num_layers, x.size(0), self.hidden_size).to(device)     #cells zero init
-        x, (hn, cn) = self.lstm1(x, (h0_0, c0_0))
+        x = self.lstm1(x)
         x = self.fc(x)
         return x
