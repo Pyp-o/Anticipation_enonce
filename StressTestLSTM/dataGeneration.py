@@ -1,5 +1,3 @@
-#TODO tester les limites du LSTM en utilisant des prédictions simples (in: a out: a; in: ab out: ab)
-
 import torch
 import torch.nn as nn
 
@@ -86,9 +84,4 @@ print(f'epoch: {i + 1:3} loss: {single_loss.item():10.10f}')
 print("X_test", X_test)
 print(model(X_test, device).to(device))
 
-#TODO implémentation word embedding pour LSTM (MSE possiblement utilisable)
 #https://towardsdatascience.com/building-a-next-word-predictor-in-tensorflow-e7e681d4f03f
-#TODO CrossEntropy + NLL
-#reunion Vendredi matin 10h30
-#reunion Mercredi 21 11h
-#reunion Vendredi 23 11h

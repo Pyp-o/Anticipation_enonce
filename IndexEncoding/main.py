@@ -4,13 +4,10 @@ import models
 import numpy as np
 import random
 
-SEED = 10
+SEED = 0
 np.random.seed(SEED)
 random.seed(SEED)
 torch.manual_seed(SEED)
-
-encoding = 'oneHot'
-n_features = 1
 
 ############### MAIN ###############
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -25,27 +22,26 @@ print("prepare data")
 data = dataPrep.parseUtterances(data)
 data = dataPrep.parsePhrase(data)
 data = dataPrep.removePunctuation(data)
-data = data[:2000]
+
 #vocab construct random order
 vocab = dataPrep.vocabConstruct(data)
+vocab = sorted(vocab, key=str.lower) #tri du vocabulaire par ordre alphabétique
 
 #make each phrase as an entry of array
 data = dataPrep.dataAsArray(data)
 data = dataPrep.rmSpaces(data)
 
 #word encoding
-word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features = dataPrep.encodeWord(vocab, encoding)
-print(n_features)
+word_to_ix, ix_to_word = dataPrep.encodeWord(vocab, 'index')
 
-#scaler creation and fitting
-if encoding == 'index':
-    scaler = dataPrep.fitScaler(data, word_to_oneHot)
+#scaler creationa and fitting
+scaler = dataPrep.fitScaler(data, word_to_ix)
 
 #limit lenght of each phrase to 8 words
 data = dataPrep.limitLength(data, 6)
-data = data[:50]
-
+data = data[:100]
 print("vocabulary construction")
+
 #split dataset into trainset and testset
 ind = int(len(data)*0.9)
 train = data[:ind]
@@ -58,20 +54,20 @@ X_test, y_test = dataPrep.splitX_y(test, 3)
 
 print("convert words into numbers")
 #convert words to ix
-X_train = dataPrep.convertPhrasetoIx(X_train, word_to_oneHot)
-y_train = dataPrep.convertPhrasetoIx(y_train, word_to_oneHot)
+X_train = dataPrep.convertPhrasetoIx(X_train, word_to_ix)
+y_train = dataPrep.convertPhrasetoIx(y_train, word_to_ix)
 
-X_test = dataPrep.convertPhrasetoIx(X_test, word_to_oneHot)
-y_test = dataPrep.convertPhrasetoIx(y_test, word_to_oneHot)
+X_test = dataPrep.convertPhrasetoIx(X_test, word_to_ix)
+y_test = dataPrep.convertPhrasetoIx(y_test, word_to_ix)
 
 print("rescale data")
 #rescale data
-if encoding == 'index':
-    X_train = scaler.transform(X_train)
-    y_train = scaler.transform(y_train)
+data = scaler.transform(X_train)
+X_train = scaler.transform(X_train)
+y_train = scaler.transform(y_train)
 
-    X_test = scaler.transform(X_test)
-    y_test = scaler.transform(y_test)
+X_test = scaler.transform(X_test)
+y_test = scaler.transform(y_test)
 
 print("convert arrays to tensors")
 T_X_train = []
@@ -83,27 +79,24 @@ for i in range(len(X_train)):
     T_X_train.append(torch.FloatTensor(X_train[i]))
     T_y_train.append(torch.FloatTensor(y_train[i]))
 for i in range(len(X_train)):
-    T_X_train[i] = torch.reshape(T_X_train[i], (1, -1, n_features)).to(device)
-    T_y_train[i] = torch.reshape(T_y_train[i], (1, -1, n_features)).to(device)
+    T_X_train[i] = torch.reshape(T_X_train[i], (1, 3, 1)).to(device)
+    T_y_train[i] = torch.reshape(T_y_train[i], (1, 3, 1)).to(device)
 
 for i in range(len(X_test)):
     T_X_test.append(torch.FloatTensor(X_test[i]))
     T_y_test.append(torch.FloatTensor(y_test[i]))
 for j in range(len(X_test)):
-    T_X_test[j] = torch.reshape(T_X_test[j], (1, -1, n_features)).to(device)
-    T_y_test[j] = torch.reshape(T_y_test[j], (1, -1, n_features)).to(device)
+    T_X_test[j] = torch.reshape(T_X_test[j], (1, 3, 1)).to(device)
+    T_y_test[j] = torch.reshape(T_y_test[j], (1, 3, 1)).to(device)
 
-print(T_X_train[0].shape)
-
-#del X_train, y_train
 
 print("model declaration")
 #model declaration
-model = models.LSTM(hidden_size=5, nfeatures=n_features, num_layers=2).to(device) #2 couches 512 cells pour 26000 mots
-loss_function = torch.nn.MSELoss(reduction='sum')
+model = models.LSTM(input_size=1, hidden_size=128, nfeatures=1, num_layers=2).to(device)
+loss_function = torch.nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-epochs = 5
+epochs = 1000
 batch_size = 4
 
 loss = []
@@ -121,9 +114,9 @@ for i in range(epochs):
         optimizer.step()
         model.zero_grad()
     if i%5 == 1:
-        print(f'epoch: {i+1:3} loss: {single_loss.item():10.10f}')
+        print(f'epoch: {i:3} loss: {single_loss.item():10.4f}')
 
-print(f'epoch: {i+1:3} loss: {single_loss.item():10.10f}')
+print(f'epoch: {i:3} loss: {single_loss.item():10.4f}')
 
 print("model predicting")
 #model predictions
@@ -134,16 +127,25 @@ for j in range(l):
 
 print("reverse predicted tensors to CPU")
 #moving back tensors to CPU to treat tensors as numpy array
-for i in range(len(predictions)):
-    predictions[i] = predictions[i].cpu().detach().numpy()
+converted = dataPrep.reverseTensor(predictions)
 
-inp = dataPrep.reverseOneHot(X_train[:l], oneHot_to_word)
-out = dataPrep.reverseOneHot(y_train[:l], oneHot_to_word)
-predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
+start = T_X_train[:l]
+start = dataPrep.reverseTensor(start)
+start = scaler.inverse_transform(start)
+converted = scaler.inverse_transform(converted)
+expected = scaler.inverse_transform(y_train)
 
-print("input:", inp)
-print("predicted", predictions)
-print("output", out)
+print("input :",start)
+print("output :", converted)
+print("target :", expected[:l])
 
-#TODO tester de nuit avec corpus entier et ~10000 epochs
-#TODO modifier loss function pour l'encodage index
+start = dataPrep.convertIxtoPhrase(start, ix_to_word)
+converted = dataPrep.convertIxtoPhrase(converted, ix_to_word)
+expected = dataPrep.convertIxtoPhrase(expected, ix_to_word)
+
+print("input :",start)
+print("output :", converted)
+print("target :", expected[:l])
+
+#TODO impact de la couche de sortie sur les performances (Linear, Tanh, Sigmoid, etc...)
+#TODO mesurer impact loss function et optimizer (attention de ne pas faire d'associations peu fiables)

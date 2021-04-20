@@ -1,8 +1,5 @@
 première analyse : relation de la nature des données et apprentissage
 
-TODO 1) modele LSTM avec encodage simple
-TODO 2) encodage int, binaire (hexa), one-hot-encoding, index random
-TODO 3) encodage du vocabulaire dans l'ordre alphabétique, puis ordre random
 TODO impact de la couche de sortie sur les performances (Linear, Tanh, Sigmoid, etc...)
 TODO mesurer impact loss function et optimizer (attention de ne pas faire d'associations peu fiables)
 Quelles phrases seront bien pour prédire la fin + explication hypothèse

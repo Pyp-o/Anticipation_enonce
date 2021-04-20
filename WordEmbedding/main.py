@@ -10,7 +10,7 @@ np.random.seed(SEED)
 random.seed(SEED)
 torch.manual_seed(SEED)
 n_features = 100
-epochs = 750
+epochs = 300
 
 ############### MAIN ###############
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -82,7 +82,7 @@ for j in range(len(X_test)):
 print("model declaration")
 #model declaration
 model = models.LSTM(hidden_size=512, nfeatures=n_features, num_layers=2).to(device) #2 couches 512 cells pour 26000 mots
-loss_function = torch.nn.MSELoss(reduction='mean')
+loss_function = torch.nn.MSELoss(reduction='sum')
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
 print("training model")
@@ -126,3 +126,5 @@ del data
 
 for i in range(len(inp)):
     print(f'\ni:{i:3} {inp[i]}\n{out[i]}\n{predictions[i]}')
+
+#TODO save best model during training instead of the last one

@@ -39,19 +39,13 @@ class Model(nn.Module):
         self.seq_length = seq_length
         self.batch_size = batch_size
 
-        self.lstm1 = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, bidirectional=False)   #first lstm layer
-        #self.lstm2 = nn.LSTM(input_size=hidden_size, hidden_size=hidden_size*2, num_layers=num_layers, batch_first=True, bidirectional=False)    #second lstm layer
+        self.lstm1 = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=False, bidirectional=False)   #first lstm layer
         self.fc = nn.Linear(hidden_size, output_size) #linear layer to convert hidden processed data into 1 prediction
 
     def forward(self, x, device):
         h0_0 = torch.randn(self.num_layers, x.size(0), self.hidden_size).to(device)  #hidden layer random init
         c0_0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
         x, (hn, cn) = self.lstm1(x, (h0_0, c0_0))
-        """
-        h0_1 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size*2))
-        c0_1 = Variable(torch.zeros(self.num_layers, x.size(0), self.hidden_size*2))
-        x, (hn, cn) = self.lstm2(x.view(len(x) ,self.batch_size , -1), (h0_1,c0_1))
-        """
         x = self.fc(x)
 
         return x
