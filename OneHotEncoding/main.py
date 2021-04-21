@@ -144,6 +144,3 @@ predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
 print("input:", inp)
 print("predicted", predictions)
 print("output", out)
-
-#TODO tester de nuit avec corpus entier et ~10000 epochs
-#TODO modifier loss function pour l'encodage index
