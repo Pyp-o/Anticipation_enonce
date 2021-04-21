@@ -12,6 +12,6 @@ class LSTM(nn.Module):
         self.fc = nn.Linear(hidden_size, nfeatures) #linear layer to convert hidden processed data into 1 prediction
 
     def forward(self, x, device):
-        x = self.lstm1(x)
+        x, _ = self.lstm1(x)
         x = self.fc(x)
         return x
