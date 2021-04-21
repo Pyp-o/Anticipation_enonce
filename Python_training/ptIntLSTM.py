@@ -1,9 +1,9 @@
-#------------------------------#
 """
-Voici un script déclarant un LSTM faisant des prédictions d'entier
-Il se sert ici de cuda (GPU) s'il est disponible, sinon du CPU
+la différence de performances entre le modèle de Pierre C et le mien viens de l'optimizer
+(Adamn contre SGD), lors du changement de l'un vers l'autre les résultats deviennent similaires
 """
-#------------------------------#
+
+
 import torch
 import torch.nn as nn
 import seaborn as sns
@@ -63,7 +63,7 @@ print(len(X_train))
 #model
 model = Model(seq_len=1, hidden_size = 32, num_layers = 2, batch_size = 4, output_size=1)
 loss_function = nn.MSELoss()
-optimizer = torch.optim.SGD(model.parameters(), lr = .01) #différence de performance est quasiment entierement liée à l'optimizer
+optimizer = torch.optim.SGD(model.parameters(), lr = .01)
 
 epochs = 1000
 Losses = np.zeros(epochs)

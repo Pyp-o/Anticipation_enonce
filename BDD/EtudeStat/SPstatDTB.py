@@ -1,12 +1,16 @@
+####################IMPORTS######################
+
 import pandas as pd
 import statistics as stat
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rd
-import re
+import re 
 import string
 import enchant
 from nltk.corpus import words
+
+####################FUNCTIONS######################
 
 def wordCount(string):
     return (len(string.strip().split(" ")))
@@ -114,17 +118,19 @@ def printStats(moy, median, var, quart1, quart3):
 
 
 
-def lexic(phrase):
+def lexic(phrase, character):
 	lex = []
 	for p in phrase:
 		if isinstance(p, str):
 			word = re.sub('['+string.punctuation+']', '', p).split()
 			for w in word:
 					if w not in lex:
-						lex.append(w)
+						if not w in character:
+							lex.append(w)
 
 	print("nb de mots différents :", len(lex))
 	return lex
+
 
 def randPrint(transcript):
     print(transcript[rd.randint(0, 1000)])
@@ -134,6 +140,7 @@ def randPrint(transcript):
     print(transcript[rd.randint(0, 1000)])
     print(transcript[rd.randint(0, 1000)])
 
+#probleme avec les mots pluriels
 def onlyEnglishLexic(lexic):
     lex = []
     oov = []
@@ -146,7 +153,7 @@ def onlyEnglishLexic(lexic):
             if lexic[w] in word_list:
                 lex.append(lexic[w])
         else:
-            oov.append(lexic[w])
+            oov.append(lexic[w]) 
     return lex, oov
 
 def onlyEnglishLexic2(lexic):
@@ -161,30 +168,37 @@ def onlyEnglishLexic2(lexic):
             if word_list.check(lexic[w]):
                 lex.append(lexic[w])
         else:
-            oov.append(lexic[w])
+            oov.append(lexic[w]) 
     return lex, oov
 
 ####################MAIN######################
 
-df = pd.read_csv (r'../../DataBase/medical/mtsamples.csv')
-#unnamed / medical_specialty / sample_name / transcription / keywords
+#load csv
+df = pd.read_csv(r'../../../DataBase/south_park/sp_lines.csv')
 
-#parse DTB
-transcript=df.transcription
+utterance = df.text
+character = df.character
+
+"""
+episode = df.episode_name
+season = df.season_number
+eipsode = df.episode_number
+"""
 
 del(df)
 
+print("nb d'utterances :", len(utterance))
 
-#utterance example
-randPrint(transcript)
+#randPrint(utterance)
 
 #var
 nbWord = []
 nbUtt = []
 lex = []
+oov = []
 
 #remplissage du lexique
-lex = lexic(transcript)
+lex = lexic(utterance, character)
 
 #delete OOV words from lexic
 lex, oov = onlyEnglishLexic(lex)
@@ -194,10 +208,8 @@ lex, oov = onlyEnglishLexic2(lex)
 print("nb de mots différents (actualisé 2) :", len(lex))
 
 
-#print("calcul time :", end-begin)
-
 #count number in each utterance
-nbWord = DTBwordCount(transcript)
+nbWord = DTBwordCount(utterance)
 
 #shortest and longest utterance in nb of words
 min, max = min_max(nbWord)
@@ -208,9 +220,6 @@ nbUtt = nb_len(nbWord, max)
 
 #stat calc
 moy, median, var, quart1, quart3 = stats(nbWord)
-
-#bar graph of number of utterance of same length
-#barplot(nbUtt)
 
 #point plot
 pointplot(nbUtt)

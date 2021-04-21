@@ -199,7 +199,7 @@ def onlyEnglishLexic2(lexic):
     return lex, oov
 
 ####################MAIN######################
-df = open(r'../../DataBase/dialog/dialogues_text.txt', encoding='utf-8')
+df = open(r'../../../DataBase/dialog/dialogues_text.txt', encoding='utf-8')
 
 #parsing each dialog
 utt = parsingAllData(df)

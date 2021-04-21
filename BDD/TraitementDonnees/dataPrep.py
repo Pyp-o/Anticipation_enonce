@@ -3,7 +3,6 @@ import re
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 
 """ -------------------------------------------------------------------------
 # each dialog is separated by a return                                      #
@@ -264,13 +263,3 @@ def reverseEmbed(dataset, embed):
             ph.append(embed.similar_by_vector(word, topn=1))
         data.append(ph)
     return data
-
-def plotLoss(loss):
-    plt.figure()
-    plt.plot(np.log10(loss))
-    plt.title('Learning curve')
-    plt.ylabel('loss: log10(MSE)')
-    plt.xlabel('epoch')
-    plt.show()
-    plt.close('all')
-    return 0

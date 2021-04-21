@@ -1,16 +1,12 @@
-####################IMPORTS######################
-
 import pandas as pd
 import statistics as stat
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rd
-import re 
+import re
 import string
 import enchant
 from nltk.corpus import words
-
-####################FUNCTIONS######################
 
 def wordCount(string):
     return (len(string.strip().split(" ")))
@@ -118,15 +114,14 @@ def printStats(moy, median, var, quart1, quart3):
 
 
 
-def lexic(phrase, character):
+def lexic(phrase):
 	lex = []
 	for p in phrase:
 		if isinstance(p, str):
 			word = re.sub('['+string.punctuation+']', '', p).split()
 			for w in word:
 					if w not in lex:
-						if not w in character:
-							lex.append(w)
+						lex.append(w)
 
 	print("nb de mots différents :", len(lex))
 	return lex
@@ -140,7 +135,6 @@ def randPrint(transcript):
     print(transcript[rd.randint(0, 1000)])
     print(transcript[rd.randint(0, 1000)])
 
-#probleme avec les mots pluriels
 def onlyEnglishLexic(lexic):
     lex = []
     oov = []
@@ -153,7 +147,7 @@ def onlyEnglishLexic(lexic):
             if lexic[w] in word_list:
                 lex.append(lexic[w])
         else:
-            oov.append(lexic[w]) 
+            oov.append(lexic[w])
     return lex, oov
 
 def onlyEnglishLexic2(lexic):
@@ -168,37 +162,32 @@ def onlyEnglishLexic2(lexic):
             if word_list.check(lexic[w]):
                 lex.append(lexic[w])
         else:
-            oov.append(lexic[w]) 
+            oov.append(lexic[w])
     return lex, oov
 
 ####################MAIN######################
 
-#load csv
-df = pd.read_csv(r'../../DataBase/south_park/sp_lines.csv')
+df = pd.read_csv (r'../../../DataBase/radio_archives/utterances.csv')
+#episode / episode_order / speaker / utterance
 
-utterance = df.text
-character = df.character
-
-"""
-episode = df.episode_name
-season = df.season_number
-eipsode = df.episode_number
-"""
-
+#ep = df.episode
+#ep_order = df.episode_order
+#sp = df.speaker
+utterance = df.utterance
 del(df)
 
-print("nb d'utterances :", len(utterance))
 
-#randPrint(utterance)
+#utterance example
+randPrint(utterance)
 
 #var
 nbWord = []
 nbUtt = []
 lex = []
-oov = []
 
+"""
 #remplissage du lexique
-lex = lexic(utterance, character)
+lex = lexic(utterance)
 
 #delete OOV words from lexic
 lex, oov = onlyEnglishLexic(lex)
@@ -206,7 +195,9 @@ print("nb de mots différents (actualisé) :", len(lex))
 
 lex, oov = onlyEnglishLexic2(lex)
 print("nb de mots différents (actualisé 2) :", len(lex))
+"""
 
+#print("calcul time :", end-begin)
 
 #count number in each utterance
 nbWord = DTBwordCount(utterance)
@@ -220,6 +211,9 @@ nbUtt = nb_len(nbWord, max)
 
 #stat calc
 moy, median, var, quart1, quart3 = stats(nbWord)
+
+#bar graph of number of utterance of same length
+#barplot(nbUtt)
 
 #point plot
 pointplot(nbUtt)

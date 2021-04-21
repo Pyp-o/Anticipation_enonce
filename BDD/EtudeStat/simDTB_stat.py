@@ -3,10 +3,11 @@ import statistics as stat
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rd
-import re
-import string
+import re 
+import string 
 import enchant
 from nltk.corpus import words
+import nltk
 
 def wordCount(string):
     return (len(string.strip().split(" ")))
@@ -92,7 +93,6 @@ def pointplot(utt_len):
     plt.plot(X, Y, 'o')
     plt.show()
 
-
 def stats(utt_len):
     moy = stat.fmean(utt_len)
     median = stat.median(utt_len)
@@ -114,18 +114,18 @@ def printStats(moy, median, var, quart1, quart3):
 
 
 
-def lexic(phrase):
+def lexic(phrase, character):
 	lex = []
 	for p in phrase:
 		if isinstance(p, str):
 			word = re.sub('['+string.punctuation+']', '', p).split()
 			for w in word:
 					if w not in lex:
-						lex.append(w)
+						if not w in character:
+							lex.append(w)
 
 	print("nb de mots différents :", len(lex))
 	return lex
-
 
 def randPrint(transcript):
     print(transcript[rd.randint(0, 1000)])
@@ -167,27 +167,30 @@ def onlyEnglishLexic2(lexic):
 
 ####################MAIN######################
 
-df = pd.read_csv (r'../../DataBase/radio_archives/utterances.csv')
-#episode / episode_order / speaker / utterance
+#load csv
+df = pd.read_csv(r'../../../DataBase/simpsons/simpsons_dataset.csv')
+# raw_character_text / spoken_words
+# personnage parlant / phrase
+# same size
 
-#ep = df.episode
-#ep_order = df.episode_order
-#sp = df.speaker
-utterance = df.utterance
+#parse dtb
+character = df.raw_character_text
+phrase = df.spoken_words
+
 del(df)
 
-
 #utterance example
-randPrint(utterance)
+randPrint(phrase)
+
+print("nb d'utterances :", len(phrase))
 
 #var
 nbWord = []
 nbUtt = []
 lex = []
 
-"""
 #remplissage du lexique
-lex = lexic(utterance)
+lex = lexic(phrase, character)
 
 #delete OOV words from lexic
 lex, oov = onlyEnglishLexic(lex)
@@ -195,12 +198,10 @@ print("nb de mots différents (actualisé) :", len(lex))
 
 lex, oov = onlyEnglishLexic2(lex)
 print("nb de mots différents (actualisé 2) :", len(lex))
-"""
 
-#print("calcul time :", end-begin)
 
 #count number in each utterance
-nbWord = DTBwordCount(utterance)
+nbWord = DTBwordCount(phrase)
 
 #shortest and longest utterance in nb of words
 min, max = min_max(nbWord)
@@ -211,9 +212,6 @@ nbUtt = nb_len(nbWord, max)
 
 #stat calc
 moy, median, var, quart1, quart3 = stats(nbWord)
-
-#bar graph of number of utterance of same length
-#barplot(nbUtt)
 
 #point plot
 pointplot(nbUtt)
