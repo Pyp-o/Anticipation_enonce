@@ -2,11 +2,8 @@ import string
 import re
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
-import random
-import torch
 import math
-
-
+import matplotlib.pyplot as plt
 
 """ -------------------------------------------------------------------------
 # each dialog is separated by a return                                      #
@@ -48,7 +45,7 @@ def parsePhrase(tab):
 def limitLength(tab, length):
     data = []
     for i in range(len(tab)):
-        if len(tab[i].split()) == length:
+        if len(tab[i]) == length:
             data.append(tab[i])
     return data
 
@@ -94,23 +91,38 @@ def vocabConstruct(tab):
 
 """ -------------------------------------------------------------------------
 # encode word                                                               #
-# multiple encoding possibilities : index
+# multiple encoding possibilities : index, one-hot encoding, word embedding
 -------------------------------------------------------------------------"""
-def encodeWord(vocab, type='index'):
+def encodeWord(vocab, type='oneHot'):
     if type == 'index':         #
         word_to_ix = {word: i for i, word in enumerate(vocab)}
         ix_to_word = {i: word for i, word in enumerate(vocab)}
-    elif type == 'binaire':
-        raise NameError('Not implemented yet')
-    elif type == 'hexa':
-        raise NameError('Not implemented yet')
+        return word_to_ix, ix_to_word
+
     elif type == 'oneHot':
+        data = []
+        n_features = len(vocab)
+
+        for i in range(n_features):
+            ar = list(np.zeros(n_features, dtype=int))
+            ar[i] = 1
+            data.append(tuple(ar))
+        vocab = tuple(vocab)
+        data = tuple(data)
+
+        word_to_oneHot = {vocab[i]: data[i] for i in range(n_features)}
+        oneHot_to_word = {data[i]: vocab[i] for i in range(n_features)}
+        word_to_ix = {word: i for i, word in enumerate(vocab)}
+        ix_to_word = {i: word for i, word in enumerate(vocab)}
+
+        return word_to_oneHot, oneHot_to_word, word_to_ix , ix_to_word, n_features
+
+    elif type == 'wordEncoding':
         raise NameError('Not implemented yet')
-    elif type == 'notConitnuousIndex':
-        raise NameError('Not implemented yet')
+        return word_to_ix, ix_to_word
     else:
-        NameError('Invalid encoding type')
-    return word_to_ix, ix_to_word
+        raise NameError('Invalid encoding type')
+        return word_to_ix, ix_to_word
 
 """ -------------------------------------------------------------------------
 # split X and y from dataset                                                #
@@ -119,8 +131,8 @@ def splitX_y(dataset, length):
     X = []
     y = []
     for phrase in dataset:
-        X.append(phrase.split()[:length])
-        y.append(phrase.split()[length:])
+        X.append(phrase[:length])
+        y.append(phrase[length:])
     return X,y
 
 """ -------------------------------------------------------------------------
@@ -139,16 +151,33 @@ def rmSpaces(dataset):
     return data
 
 """ -------------------------------------------------------------------------
-# convert words to ix                                                       #
-# input : array [["word1", "word2" ...],["word1", "word2" ...]]             #
+# convert words to vector                                                    #
+# input : array [["v1", "v2", ...],["v1", "v2", ...]]                          #
+-------------------------------------------------------------------------"""
+def convertPhrasetoWE(dataset, glove):
+    data = []
+    for phrase in dataset:
+        encodedPhrase = []
+        for word in phrase.split():
+            try:
+                encodedPhrase.append(glove.get_vector(word.lower()))
+            except:
+                encodedPhrase = []
+                break
+        if encodedPhrase!=[]:
+            data.append(encodedPhrase)
+    return data
+
+""" -------------------------------------------------------------------------
+# convert words to Ix                                                    #
+# input : array [["index1", "index2", ...],["index1", "index2", ...]]                          #
 -------------------------------------------------------------------------"""
 def convertPhrasetoIx(dataset, word_to_ix):
     data = []
-    for i in range(len(dataset)):
-        phrase = dataset[i]
+    for phrase in dataset:
         encodedPhrase = []
-        for j in range(len(phrase)):
-            encodedPhrase.append(word_to_ix[phrase[j].lower()])
+        for word in phrase.split():
+                encodedPhrase.append(word_to_ix[word.lower()])
         data.append(encodedPhrase)
     return data
 
@@ -161,13 +190,15 @@ def convertWordstoIx(dataset, word_to_ix):
         data.append(word_to_ix[dataset[i].lower()])
     return data
 
+""" -------------------------------------------------------------------------
+# convert an array shape ['ix0', 'ix1', 'ix2', 'ix3' ...] to word           #
+-------------------------------------------------------------------------"""
 def convertIxtoPhrase(dataset, ix_to_word):
     data = []
     for phrase in dataset:
         p = []
         for i in range(len(phrase)):
             if phrase[i]-int(phrase[i])==0.5:
-                print("!")
                 p.append(ix_to_word[math.ceil(phrase[i])])  #arrondi inférieur
                 p.append(ix_to_word[math.floor(phrase[i])]) #arrondi supérieur
             else :
@@ -182,25 +213,30 @@ def convertIxtoPhrase(dataset, ix_to_word):
 def fitScaler(dataset, word_to_ix, min=-1, max=1):
     data = []
     for phrase in dataset:
-        for word in phrase.split():
+        for word in phrase:
             data.append(word)
-    test = convertWordstoIx(data, word_to_ix)
-    test = np.reshape(test, (-1, 1))
+    test = np.reshape(data, (-1, 1))
     scaler = MinMaxScaler(feature_range=(min, max))
     scaler = scaler.fit(test)
     return scaler
 
-""" -------------------------------------------------------------------------
-# reverse predicted tensor from gpu to cpu and from torch.tensor            #
-# to numpy.array                                                            #
--------------------------------------------------------------------------"""
-def reverseTensor(tensors):
-    converted = []
-    for tensor in tensors:
-        a = []
-        tensor = tensor.cpu()
-        tensor = tensor.detach().numpy()
-        for value in tensor[0]:
-            a.append(value[0])
-        converted.append(a)
-    return converted
+def reverseTransformedPrediction(dataset, scaler):
+    data = []
+    for i in range(len(dataset)):
+        dataset[i] = scaler.inverse_transform(dataset[i])
+    for i in range(len(dataset)):
+        ph = []
+        for j in range(len(dataset[i])):
+            ph.append(dataset[i][j][0])
+        data.append(ph)
+    return data
+
+def plotLoss(loss):
+    plt.figure()
+    plt.plot(np.log10(loss))
+    plt.title('Learning curve')
+    plt.ylabel('loss: log10(MSE)')
+    plt.xlabel('epoch')
+    plt.show()
+    plt.close('all')
+    return 0

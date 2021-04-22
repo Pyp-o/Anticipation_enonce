@@ -21,7 +21,7 @@ def prepareData():
     glove = KeyedVectors.load_word2vec_format(filename, binary=False)
 
     #convert words to ix
-    data = dataPrep.convertPhrasetoIx(data, glove)
+    data = dataPrep.convertPhrasetoWE(data, glove)
 
     with open('WEdata.txt', 'wb') as fp:
         pickle.dump(data, fp)

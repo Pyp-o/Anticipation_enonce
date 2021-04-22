@@ -116,12 +116,6 @@ def encodeWord(vocab, type='oneHot'):
 
         return word_to_oneHot, oneHot_to_word, word_to_ix , ix_to_word, n_features
 
-    elif type == 'wordEncoding':
-        raise NameError('Not implemented yet')
-        return word_to_ix, ix_to_word
-    else:
-        raise NameError('Invalid encoding type')
-        return word_to_ix, ix_to_word
 
 """ -------------------------------------------------------------------------
 # split X and y from dataset                                                #
@@ -150,22 +144,34 @@ def rmSpaces(dataset):
     return data
 
 """ -------------------------------------------------------------------------
-# convert words to ix                                                       #
-# input : array [["word1", "word2" ...],["word1", "word2" ...]]             #
+# convert words to vector                                                    #
+# input : array [["v1", "v2", ...],["v1", "v2", ...]]                          #
 -------------------------------------------------------------------------"""
-def convertPhrasetoIx(dataset, word_to_ix):
+def convertPhrasetoWE(dataset, glove):
     data = []
-    fail = 0
     for phrase in dataset:
         encodedPhrase = []
         for word in phrase.split():
             try:
-                encodedPhrase.append(word_to_ix.get_vector(word.lower()))
+                encodedPhrase.append(glove.get_vector(word.lower()))
             except:
                 encodedPhrase = []
                 break
         if encodedPhrase!=[]:
             data.append(encodedPhrase)
+    return data
+
+""" -------------------------------------------------------------------------
+# convert words to Ix                                                    #
+# input : array [["index1", "index2", ...],["index1", "index2", ...]]                          #
+-------------------------------------------------------------------------"""
+def convertPhrasetoIx(dataset, word_to_ix):
+    data = []
+    for phrase in dataset:
+        encodedPhrase = []
+        for word in phrase.split():
+                encodedPhrase.append(word_to_ix[word.lower()])
+        data.append(encodedPhrase)
     return data
 
 """ -------------------------------------------------------------------------
@@ -186,7 +192,6 @@ def convertIxtoPhrase(dataset, ix_to_word):
         p = []
         for i in range(len(phrase)):
             if phrase[i]-int(phrase[i])==0.5:
-                print("!")
                 p.append(ix_to_word[math.ceil(phrase[i])])  #arrondi inférieur
                 p.append(ix_to_word[math.floor(phrase[i])]) #arrondi supérieur
             else :
@@ -201,10 +206,9 @@ def convertIxtoPhrase(dataset, ix_to_word):
 def fitScaler(dataset, word_to_ix, min=-1, max=1):
     data = []
     for phrase in dataset:
-        for word in phrase.split():
+        for word in phrase:
             data.append(word)
-    test = convertWordstoIx(data, word_to_ix)
-    test = np.reshape(test, (-1, 1))
+    test = np.reshape(data, (-1, 1))
     scaler = MinMaxScaler(feature_range=(min, max))
     scaler = scaler.fit(test)
     return scaler

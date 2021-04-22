@@ -4,7 +4,7 @@ import models
 import numpy as np
 import random
 from gensim.models import KeyedVectors
-import DataHandlingWE
+import dataHandlingWE
 import pickle
 from os.path import exists
 
@@ -23,14 +23,14 @@ torch.manual_seed(SEED)
 FILENAME = "./WEdata.txt"
 DATA_SUBSAMPLE = 100        #si 0 on prend tout le jeu de données
 SUBSAMPLE = int(DATA_SUBSAMPLE*0.8) #number of phrases in the whole set
-BATCH_SIZE = 5  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+BATCH_SIZE = 10  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
 LEARNING_RATE = 0.0001
 N_FEATURES = 100    #100 pour GloVe
 HIDDEN_SIZE = 512
 NUM_LAYERS = 2
-EPOCHS = 5
+EPOCHS = 500
 
 
 
@@ -50,7 +50,7 @@ if exists(FILENAME):
     print("GloVe imported !")
 else:
     print("preparing data...")
-    data, glove = DataHandlingWE.prepareData()
+    data, glove = dataHandlingWE.prepareData()
     print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words

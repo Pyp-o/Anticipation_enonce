@@ -155,11 +155,10 @@ def rmSpaces(dataset):
 -------------------------------------------------------------------------"""
 def convertPhrasetoIx(dataset, word_to_ix):
     data = []
-    for i in range(len(dataset)):
-        phrase = dataset[i]
+    for phrase in dataset:
         encodedPhrase = []
-        for j in range(len(phrase)):
-            encodedPhrase.append(word_to_ix[phrase[j].lower()])
+        for word in phrase.split():
+                encodedPhrase.append(word_to_ix[word.lower()])
         data.append(encodedPhrase)
     return data
 
