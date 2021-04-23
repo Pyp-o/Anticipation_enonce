@@ -67,7 +67,7 @@ if exists(FILENAME) and exists(FILENAME0) and exists(FILENAME1) and exists(FILEN
     print("data imported !")
 else:
     print("preparing data...")
-    vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features = dataHandlingOneHot.prepareData()
+    data, vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features = dataHandlingOneHot.prepareData()
     print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words

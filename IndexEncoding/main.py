@@ -72,6 +72,7 @@ X_train, Y_train = dataPrep.splitX_y(train, int(UTT_LEN/2))
 X_test, Y_test = dataPrep.splitX_y(test, int(UTT_LEN/2))
 
 #-------------- rescale data
+print(data)
 data = scaler.transform(X_train)
 X_train = scaler.transform(X_train)
 Y_train = scaler.transform(Y_train)

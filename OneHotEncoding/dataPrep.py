@@ -44,7 +44,7 @@ def parsePhrase(tab):
 def limitLength(tab, length):
     data = []
     for i in range(len(tab)):
-        if len(tab[i].split()) == length:
+        if len(tab[i]) == length:
             data.append(tab[i])
     return data
 
@@ -130,8 +130,8 @@ def splitX_y(dataset, length):
     X = []
     y = []
     for phrase in dataset:
-        X.append(phrase.split()[:length])
-        y.append(phrase.split()[length:])
+        X.append(phrase[:length])
+        y.append(phrase[length:])
     return X,y
 
 """ -------------------------------------------------------------------------

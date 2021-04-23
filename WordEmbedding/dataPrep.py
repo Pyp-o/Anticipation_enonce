@@ -170,6 +170,24 @@ def convertPhrasetoIx(dataset, word_to_ix):
     return data
 
 """ -------------------------------------------------------------------------
+# convert words to vector                                                    #
+# input : array [["v1", "v2", ...],["v1", "v2", ...]]                          #
+-------------------------------------------------------------------------"""
+def convertPhrasetoWE(dataset, glove):
+    data = []
+    for phrase in dataset:
+        encodedPhrase = []
+        for word in phrase.split():
+            try:
+                encodedPhrase.append(glove.get_vector(word.lower()))
+            except:
+                encodedPhrase = []
+                break
+        if encodedPhrase!=[]:
+            data.append(encodedPhrase)
+    return data
+
+""" -------------------------------------------------------------------------
 # convert an array shape ['word0', 'word1', 'word2', 'word3' ...] to ix     #
 -------------------------------------------------------------------------"""
 def convertWordstoIx(dataset, word_to_ix):

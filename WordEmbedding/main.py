@@ -93,8 +93,6 @@ for i in range(EPOCHS):
     model.train()
     loss = 0
     for j in range(len(T_X_train)):
-        if i==0:
-            print(T_X_train[j].shape)
         y_pred = model(T_X_train[j]).to(device)
         single_loss = loss_function(y_pred, T_y_train[j])
         loss += single_loss.item()
