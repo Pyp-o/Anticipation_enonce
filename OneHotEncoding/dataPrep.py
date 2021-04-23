@@ -3,6 +3,7 @@ import re
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 """ -------------------------------------------------------------------------
 # each dialog is separated by a return                                      #
@@ -221,23 +222,22 @@ def reverseTensor(tensors):
 def oneHotClean(dataset, ix_to_word):
     data = []
     for phrase in dataset:
+        ph = []
         for words in phrase:
-            ph = []
-            for word in words:
-                w = []
-                index = 0
-                max = -10
-                for i in range(len(word)):
-                    if word[i] > max:
-                        max = word[i]
-                        index = i
-                for i in range(len(word)):
-                    if i == index:
-                        w.append(1)
-                    else:
-                        w.append(0)
-                ph.append(ix_to_word[tuple(w)])
-            data.append(ph)
+            w = []
+            index = 0
+            max = -10
+            for i in range(len(words)):
+                if words[i] > max:
+                    max = words[i]
+                    index = i
+            for i in range(len(words)):
+                if i == index:
+                    w.append(1)
+                else:
+                    w.append(0)
+            ph.append(ix_to_word[tuple(w)])
+        data.append(ph)
     return data
 
 def reverseOneHot(dataset, ix_to_word):
@@ -248,3 +248,13 @@ def reverseOneHot(dataset, ix_to_word):
             ph.append(ix_to_word[words])
         data.append(ph)
     return data
+
+def plotLoss(loss):
+    plt.figure()
+    plt.plot(np.log10(loss))
+    plt.title('Learning curve')
+    plt.ylabel('loss: log10(MSE)')
+    plt.xlabel('epoch')
+    plt.show()
+    plt.close('all')
+    return 0

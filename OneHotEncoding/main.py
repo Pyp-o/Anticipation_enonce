@@ -36,7 +36,7 @@ LEARNING_RATE = 0.0001
 N_FEATURES = 1    #1 pour index
 HIDDEN_SIZE = 512
 NUM_LAYERS = 2
-EPOCHS = 500
+EPOCHS = 5
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -67,7 +67,7 @@ if exists(FILENAME) and exists(FILENAME0) and exists(FILENAME1) and exists(FILEN
     print("data imported !")
 else:
     print("preparing data...")
-    data, vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features = dataHandlingOneHot.prepareData()
+    data, vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, N_FEATURES = dataHandlingOneHot.prepareData()
     print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words
@@ -132,7 +132,7 @@ predictions = model(T_X_test).to(device)
 
 print("reverse predicted tensors to CPU")
 #moving back tensors to CPU to treat tensors as numpy array
-predictions[i] = predictions[i].cpu().detach().numpy()
+predictions = predictions.cpu().detach().numpy()
 
 inp = dataPrep.reverseOneHot(X_train[:l], oneHot_to_word)
 out = dataPrep.reverseOneHot(Y_train[:l], oneHot_to_word)
