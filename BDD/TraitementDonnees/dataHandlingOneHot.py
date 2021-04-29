@@ -18,7 +18,7 @@ def prepareData():
     vocab = dataPrep.vocabConstruct(data)
     vocab = sorted(vocab, key=str.lower)  # tri du vocabulaire par ordre alphabétique -> permet d'avoir des mots proches lorsque l'erreur de prédiction est faible
     print("vocab constructed")
-    word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features = dataPrep.encodeWord(vocab, "oneHot")
+    word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features, oneHot_to_ix, ix_to_oneHot = dataPrep.encodeWord(vocab, "oneHot")
     data = dataPrep.convertPhrasetoIx(data, word_to_oneHot)
     print("words converted to oneHot")
 
@@ -41,4 +41,4 @@ def prepareData():
         pickle.dump(oneHot_to_word, fp)
     """
 
-    return data, vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features
+    return data, vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features, oneHot_to_ix, ix_to_oneHot

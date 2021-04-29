@@ -111,10 +111,12 @@ def encodeWord(vocab, type='oneHot'):
 
         word_to_oneHot = {vocab[i]: data[i] for i in range(n_features)}
         oneHot_to_word = {data[i]: vocab[i] for i in range(n_features)}
+        oneHot_to_ix = {vocab[i]: i for i in range(n_features)}
+        ix_to_oneHot = {i: vocab[i] for i in range(n_features)}
         word_to_ix = {word: i for i, word in enumerate(vocab)}
         ix_to_word = {i: word for i, word in enumerate(vocab)}
 
-        return word_to_oneHot, oneHot_to_word, word_to_ix , ix_to_word, n_features
+        return word_to_oneHot, oneHot_to_word, word_to_ix , ix_to_word, n_features, oneHot_to_ix, ix_to_oneHot
 
 
 """ -------------------------------------------------------------------------

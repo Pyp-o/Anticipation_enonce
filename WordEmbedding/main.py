@@ -10,7 +10,6 @@ from os.path import exists
 
 
 
-
 #-------------- No random --------------#
 SEED = 0
 np.random.seed(SEED)

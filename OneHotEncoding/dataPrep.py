@@ -112,10 +112,12 @@ def encodeWord(vocab, type='oneHot'):
 
         word_to_oneHot = {vocab[i]: data[i] for i in range(n_features)}
         oneHot_to_word = {data[i]: vocab[i] for i in range(n_features)}
+        oneHot_to_ix = {data[i]: i for i in range(n_features)}
+        ix_to_oneHot = {i: data[i] for i in range(n_features)}
         word_to_ix = {word: i for i, word in enumerate(vocab)}
         ix_to_word = {i: word for i, word in enumerate(vocab)}
 
-        return word_to_oneHot, oneHot_to_word, word_to_ix , ix_to_word, n_features
+        return word_to_oneHot, oneHot_to_word, word_to_ix , ix_to_word, n_features, oneHot_to_ix, ix_to_oneHot
 
     elif type == 'wordEncoding':
         raise NameError('Not implemented yet')
@@ -160,6 +162,19 @@ def convertPhrasetoIx(dataset, word_to_ix):
         encodedPhrase = []
         for word in phrase.split():
                 encodedPhrase.append(word_to_ix[word.lower()])
+        data.append(encodedPhrase)
+    return data
+
+""" -------------------------------------------------------------------------
+# convert words to ix                                                       #
+# input : array [["word1", "word2" ...],["word1", "word2" ...]]             #
+-------------------------------------------------------------------------"""
+def convertOneHotToIx(dataset, word_to_ix):
+    data = []
+    for phrase in dataset:
+        encodedPhrase = []
+        for word in phrase:
+                encodedPhrase.append(word_to_ix[word])
         data.append(encodedPhrase)
     return data
 
