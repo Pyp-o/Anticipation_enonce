@@ -10,7 +10,7 @@ import dataHandlingOneHot
 
 
 #-------------- No random --------------#
-SEED = 10
+SEED = 0
 np.random.seed(SEED)
 random.seed(SEED)
 torch.manual_seed(SEED)
@@ -27,16 +27,16 @@ FILENAME4 = "./IxToWorddata.txt"
 FILENAME5 = "./WordToOneHotdata.txt"
 FILENAME6 = "./OneHotToWorddata.txt"
 
-DATA_SUBSAMPLE = 200        #si 0 on prend tout le jeu de données
+DATA_SUBSAMPLE = 100        #si 0 on prend tout le jeu de données
 SUBSAMPLE = int(DATA_SUBSAMPLE*0.8) #number of phrases in the whole set
 BATCH_SIZE = 1  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.01
 N_FEATURES = 1    #1 pour index
 HIDDEN_SIZE = 512
 NUM_LAYERS = 2
-EPOCHS = 5
+EPOCHS = 200
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -92,12 +92,12 @@ T_X_test = []
 T_y_test = []
 #-------------- convert arrays as tensors
 T_X_train = torch.FloatTensor(X_train)
-T_y_train = torch.FloatTensor(Y_train)
+T_y_train = torch.LongTensor(Y_train)
 T_X_train = torch.reshape(T_X_train, (-1, BATCH_SIZE, int(UTT_LEN/2), N_FEATURES)).to(device)
 T_y_train = torch.reshape(T_y_train, (-1, BATCH_SIZE, int(UTT_LEN/2), 1)).to(device)
 
 T_X_test = torch.FloatTensor(X_test)
-T_y_test = torch.FloatTensor(Y_test)
+T_y_test = torch.LongTensor(Y_test)
 T_X_test = torch.reshape(T_X_test, (-1, int(UTT_LEN/2), N_FEATURES)).to(device)
 T_y_test = torch.reshape(T_y_test, (-1, int(UTT_LEN/2), 1)).to(device)
 
@@ -108,7 +108,7 @@ print("T_y_train", T_y_train.shape)
 
 print("model declaration")
 #model declaration
-model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS).to(device)
+model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS, output_size=N_FEATURES).to(device)
 loss_function = torch.nn.CrossEntropyLoss(reduction='mean')
 optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 losses = []
@@ -120,7 +120,9 @@ for i in range(EPOCHS):
     loss = 0
     for j in range(len(T_X_train)):
         y_pred = model(T_X_train[j]).to(device)
-        single_loss = loss_function(y_pred, T_y_train[j])
+        y_pred = torch.reshape(y_pred, (int(UTT_LEN/2), N_FEATURES))
+        exp = torch.reshape(T_y_train[j], (-1,))
+        single_loss = loss_function(y_pred, exp)
         loss += single_loss.item()
         single_loss.backward()
         optimizer.step()
@@ -140,7 +142,7 @@ print("reverse predicted tensors to CPU")
 predictions = predictions.cpu().detach().numpy()
 
 inp = dataPrep.reverseOneHot(X_train[:l], oneHot_to_word)
-out = dataPrep.reverseOneHot(Y_train[:l], oneHot_to_word)
+out = dataPrep.reverseOneHot(Y_train[:l], ix_to_word)
 predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
 
 for i in range(len(inp)):

@@ -20,18 +20,16 @@ torch.manual_seed(SEED)
 
 #-------------- Parametres --------------#
 FILENAME = "./WEdata.txt"
-DATA_SUBSAMPLE = 100        #si 0 on prend tout le jeu de données
-SUBSAMPLE = int(DATA_SUBSAMPLE*0.8) #number of phrases in the whole set
-BATCH_SIZE = 10  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+DATA_SUBSAMPLE = 14286        #si 0 on prend tout le jeu de données
+SUBSAMPLE = int(DATA_SUBSAMPLE*0.7) #number of phrases in the whole set
+BATCH_SIZE = 200  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.01
 N_FEATURES = 100    #100 pour GloVe
-HIDDEN_SIZE = 512
+HIDDEN_SIZE = 1024
 NUM_LAYERS = 2
-EPOCHS = 500
-
-
+EPOCHS = 1000
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -49,13 +47,17 @@ if exists(FILENAME):
     print("GloVe imported !")
 else:
     print("preparing data...")
-    data, glove = dataHandlingWE.prepareData()
+    data, glove = dataHandlingWE.prepareData("../BDD/corpus_gpt2_HiINeed_width-5_depth-13.txt")
     print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words
 data = dataPrep.limitLength(data, UTT_LEN)
 if DATA_SUBSAMPLE!=0:
     data = data[:DATA_SUBSAMPLE]
+else :
+    SUBSAMPLE = int(len(data)*0.7)
+
+print("SUBSAMPLE", SUBSAMPLE)
 
 #-------------- split dataset into trainset and testset
 train = data[:SUBSAMPLE]
