@@ -1,5 +1,4 @@
 première analyse : relation de la nature des données et apprentissage
-TODO reprendre les modèles index et oneHot, clean like Word Embedding, change loss function and batch size
 TODO selectionner les phrases d'entrainement à la main en faisant en sorte de pouvoir prédire la fin soi-même (tirer une règle) / générer un corpus ayant des règles récurentes
 
 TODO impact de la couche de sortie sur les performances (Linear, Tanh, Sigmoid, etc...)

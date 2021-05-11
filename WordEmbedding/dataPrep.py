@@ -50,6 +50,35 @@ def limitLength(tab, length):
     return data
 
 """ -------------------------------------------------------------------------
+# limit length of each phrase                                               #
+# input : array containing only one phrase by entry                         #
+-------------------------------------------------------------------------"""
+def limitLength2(tab, min=4, max=10):
+    data = []
+    zero = np.zeros(100)
+    length = len(tab)
+    for i in range(length):
+        perc = int(i*100/length)
+        l = len(tab[i])
+        """ #large data print
+        if perc % 20 == 0:
+            print(f'epoch:{perc}/{100}')
+        """
+        if min<=l<=max:
+            utt = tab[i]
+            if l%2!=0:
+                utt.append(zero)
+                l = l+1
+            if l!=max:
+                n = max-l
+                n = int(n/2)
+                for i in range(n):
+                    utt.insert(0, zero)
+                    utt.append(zero)
+            data.append(utt)
+    return data
+
+""" -------------------------------------------------------------------------
 # remove punctuation                                                        #
 -------------------------------------------------------------------------"""
 def removePunctuation(tab):
@@ -131,6 +160,15 @@ def splitX_y(dataset, length):
     X = []
     y = []
     for phrase in dataset:
+        X.append(phrase[:length])
+        y.append(phrase[length:])
+    return X,y
+
+def splitX_y2(dataset):
+    X = []
+    y = []
+    for phrase in dataset:
+        length = int(len(phrase)/2)
         X.append(phrase[:length])
         y.append(phrase[length:])
     return X,y

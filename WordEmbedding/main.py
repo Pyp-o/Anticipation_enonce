@@ -20,16 +20,17 @@ torch.manual_seed(SEED)
 
 #-------------- Parametres --------------#
 FILENAME = "./WEdata.txt"
-DATA_SUBSAMPLE = 14286        #si 0 on prend tout le jeu de données
+DATA_SUBSAMPLE = 100       #si 0 on prend tout le jeu de données
 SUBSAMPLE = int(DATA_SUBSAMPLE*0.7) #number of phrases in the whole set
-BATCH_SIZE = 200  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
-UTT_LEN = 8             #doit etre pair pour le moment
+BATCH_SIZE = 1  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+MIN_LEN = 4
+MAX_LEN = 10
 
 LEARNING_RATE = 0.01
 N_FEATURES = 100    #100 pour GloVe
-HIDDEN_SIZE = 1024
+HIDDEN_SIZE = 512
 NUM_LAYERS = 2
-EPOCHS = 1000
+EPOCHS = 500
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -51,7 +52,7 @@ else:
     print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words
-data = dataPrep.limitLength(data, UTT_LEN)
+data = dataPrep.limitLength2(data, min=MIN_LEN, max=MAX_LEN)  #limit length of phrases bewteen 4 and 10 by default
 if DATA_SUBSAMPLE!=0:
     data = data[:DATA_SUBSAMPLE]
 else :
@@ -62,8 +63,8 @@ print("SUBSAMPLE", SUBSAMPLE)
 #-------------- split dataset into trainset and testset
 train = data[:SUBSAMPLE]
 test = data[SUBSAMPLE:]
-X_train, Y_train = dataPrep.splitX_y(train, int(UTT_LEN/2))
-X_test, Y_test = dataPrep.splitX_y(test, int(UTT_LEN/2))
+X_train, Y_train = dataPrep.splitX_y2(train)    #split input and output for prediction depending on each utterance length
+X_test, Y_test = dataPrep.splitX_y2(test)
 
 print("converting arrays to tensors...")
 T_X_train = []
@@ -73,13 +74,13 @@ T_y_test = []
 #-------------- convert arrays as tensors
 T_X_train = torch.FloatTensor(X_train)
 T_y_train = torch.FloatTensor(Y_train)
-T_X_train = torch.reshape(T_X_train, (-1, BATCH_SIZE, int(UTT_LEN/2), N_FEATURES)).to(device)
-T_y_train = torch.reshape(T_y_train, (-1, BATCH_SIZE, int(UTT_LEN/2), N_FEATURES)).to(device)
+T_X_train = torch.reshape(T_X_train, (-1, BATCH_SIZE, int(MAX_LEN/2), N_FEATURES)).to(device)
+T_y_train = torch.reshape(T_y_train, (-1, BATCH_SIZE, int(MAX_LEN/2), N_FEATURES)).to(device)
 
 T_X_test = torch.FloatTensor(X_test)
 T_y_test = torch.FloatTensor(Y_test)
-T_X_test = torch.reshape(T_X_test, (-1, int(UTT_LEN/2), N_FEATURES)).to(device)
-T_y_test = torch.reshape(T_y_test, (-1, int(UTT_LEN/2), N_FEATURES)).to(device)
+T_X_test = torch.reshape(T_X_test, (-1, int(MAX_LEN/2), N_FEATURES)).to(device)
+T_y_test = torch.reshape(T_y_test, (-1, int(MAX_LEN/2), N_FEATURES)).to(device)
 
 print("model declaration")
 #-------------- model declaration

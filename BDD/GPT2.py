@@ -7,7 +7,7 @@ from next_word_prediction import GPT2
 eos = ['.', '!', '?']
 maxLength = 12 + 1  # last : end of sentence
 width = 5
-sentence = "What do you"
+sentence = "How may I"
 corpus = open('corpus_gpt2_' + sentence + str(width) + '_depth-' + str(maxLength) + '.txt', "w")
 
 # next word predictor
