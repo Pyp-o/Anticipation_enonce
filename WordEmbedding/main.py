@@ -8,7 +8,7 @@ import dataHandlingWE
 import pickle
 from os.path import exists
 
-
+# 10*7*7*19*7
 
 #-------------- No random --------------#
 SEED = 0
