@@ -8,18 +8,7 @@ import dataHandlingWE
 import pickle
 from os.path import exists
 
-#TODO next word prediction without sliding window
-#TODO tester l'impact du nombre de cellules sur les résultats
-#TODO sécuriser et tenter d'obtenir de petits résultats
 
-#TODO présentation dans 2 semaines semaine du 24 mai !!! attention au changement du point de vue et bien expliciter toutes les idées
-#TODO envoyer mail à jérémy riviere pour soutenance de stage le 29/30 juin (début de créneau)
-#TODO finir rapport au plus tard mardi 22juin
-#TODO formalisation (courbes, exemples) des réussites, exemples, comment mesurer l'erreur
-#TODO pourquoi ca fonctionne, pourquoi pas, intuition sur les tailles de cellules
-#TODO prochaine réunion: mardi 18 17h, vendredi 21 14h30
-#TODO présentation commedia semaine 24, répétion le 25 11h
-#TODO draft rapport + réunion pour le 31 14h
 
 #-------------- No random --------------#
 SEED = 0
@@ -27,23 +16,22 @@ np.random.seed(SEED)
 random.seed(SEED)
 torch.manual_seed(SEED)
 
-
+#2*29*383
 
 #-------------- Parametres --------------#
-FILENAME = "./WEdata2.txt"
-DATA_SUBSAMPLE = 2000       #si 0 on prend tout le jeu de données
-SUBSAMPLE = int(DATA_SUBSAMPLE*0.9) #number of phrases in the whole set
-BATCH_SIZE = 20  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+FILENAME = "WEdata.txt"
+SUBSAMPLE =  2000 #number of phrases in the whole set
+DATA_SUBSAMPLE = int(SUBSAMPLE/0.7)       #si 0 on prend tout le jeu de données
+BATCH_SIZE = 766
 MIN_LEN = 4
 MAX_LEN = 10
 TEST_SIZE = 20
 
-LEARNING_RATE = 0.0001
-N_FEATURES = 100    #100 pour GloVe
+LEARNING_RATE = 0.001
+N_FEATURES = 100    #100 for GloVe
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
-DROPOUT = 0.3
-EPOCHS = 1500
+EPOCHS = 500
 
 TRAIN_SET = "test"  #"train"
 
@@ -63,7 +51,7 @@ if exists(FILENAME):
     print("GloVe imported !")
 else:
     print("preparing data...")
-    data, glove = dataHandlingWE.prepareData('../../DataBase/dialog/dialogues_text.txt')
+    data, glove = dataHandlingWE.prepareData("../../DataBase/dialog/dialogues_text.txt")
     print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words
@@ -78,8 +66,11 @@ print("SUBSAMPLE", SUBSAMPLE)
 #-------------- split dataset into trainset and testset
 train = data[:SUBSAMPLE]
 test = data[SUBSAMPLE:]
-X_train, Y_train = dataPrep.splitX_y2(train)    #split input and output for prediction depending on each utterance length
-X_test, Y_test = dataPrep.splitX_y2(test)
+X_train, Y_train = dataPrep.sliding_XY(train)    #split input and output for prediction depending on each utterance length
+X_test, Y_test = dataPrep.sliding_XY(test)
+
+print("TOTAL TRAINING SAMPLE", len(X_train))
+print("VERIFICATION TOTAL TRAINING SAMPLE", len(Y_train))
 
 print("converting arrays to tensors...")
 T_X_train = []
@@ -99,7 +90,7 @@ T_y_test = torch.reshape(T_y_test, (-1, int(MAX_LEN/2), N_FEATURES)).to(device)
 
 print("model declaration")
 #-------------- model declaration
-model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS, dropout=DROPOUT).to(device)
+model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS).to(device)
 loss_function = torch.nn.MSELoss(reduction='mean')
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []

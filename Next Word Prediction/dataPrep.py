@@ -34,8 +34,14 @@ def parsePhrase(tab):
     data = []
     for d in tab:
         for e in d:
-            data.append(re.split('\! |\? |\.', e))
-    data = deleteLastElement(data)
+            c = e.split()[len(e.split())-1]
+            phrase = re.split('\! |\? |\.', e)[0]
+            if c=='.' or c=='!' or c=='?':
+                data.append(phrase+c)
+            else :
+                data.append(phrase)
+
+    #data = deleteLastElement(data)
     return data
 
 """ -------------------------------------------------------------------------
@@ -172,6 +178,43 @@ def splitX_y2(dataset):
         X.append(phrase[:length])
         y.append(phrase[length:])
     return X,y
+
+def sliding_XY(data):
+    X = []
+    Y = []
+    zero = np.zeros(100)    #vector full of 0 for padding
+    vec_zero = []
+
+    for i in range(len(data[0])):
+        vec_zero.append(zero)
+
+    for phrase in data:
+        if phrase[0].any() != zero.any():
+            min = 0
+        if phrase[len(phrase) - 1].any() != zero.any():
+            max = len(phrase) - 2
+        for i in range(len(phrase)):
+            if phrase[i].any() != zero.any():
+                min = i
+                break
+        for i in range(len(phrase) - 1, min, -1):
+            if phrase[i].any() != zero.any():
+                max = i
+                break
+
+        for i in range(min + 1, max + 1):
+            x = vec_zero.copy()
+            y = vec_zero.copy()
+            for j in range(0, i):
+                x[len(phrase) - i + j] = phrase[j]
+            for j in range(len(y)):
+                y[j] = phrase[i]
+            X.append(x)
+            Y.append(y)
+            x = vec_zero.copy()
+            y = vec_zero.copy()
+
+    return X, Y
 
 """ -------------------------------------------------------------------------
 # remove spaces injected during parsing and cleaning data                   #
@@ -323,7 +366,6 @@ def reverseEmbed(dataset, embed):
 
 def plotLoss(loss):
     plt.figure()
-    plt.grid(True)
     plt.plot(np.log10(loss))
     plt.title('Learning curve')
     plt.ylabel('loss: log10(MSE)')
