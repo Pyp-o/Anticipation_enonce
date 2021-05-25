@@ -13,11 +13,11 @@ class LSTM(nn.Module):
         self.lstm1 = nn.LSTM(input_size=nfeatures, hidden_size=hidden_size, num_layers=num_layers, batch_first=True, bidirectional=False, dropout=dropout)   #first lstm layer
         self.fc = nn.Linear(hidden_size, nfeatures) #linear layer to convert hidden processed data into 1 prediction
 
-    def forward(self, x):
+    def forward(self, x, state=None):
         #default: h0 and c0 full of zeros
-        x, _ = self.lstm1(x)
+        x, prev_state = self.lstm1(x, state)
         x = self.fc(x)
-        return x
+        return x, prev_state
 
 """
 liste des fonctions de sortie à tester

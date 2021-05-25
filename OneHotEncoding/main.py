@@ -18,57 +18,26 @@ torch.manual_seed(SEED)
 
 
 #-------------- Parametres --------------#
-FILENAME = "./OneHotdata0.txt"
-FILENAME0 = "./OneHotdata1.txt"
-FILENAME1 = "./OneHotdata1.txt"
-FILENAME2 = "./Vocabdata.txt"
-FILENAME3 = "./WordToIxdata.txt"
-FILENAME4 = "./IxToWorddata.txt"
-FILENAME5 = "./WordToOneHotdata.txt"
-FILENAME6 = "./OneHotToWorddata.txt"
-
-DATA_SUBSAMPLE = 100        #si 0 on prend tout le jeu de données
+DATA_SUBSAMPLE = 200        #si 0 on prend tout le jeu de données
 SUBSAMPLE = int(DATA_SUBSAMPLE*0.8) #number of phrases in the whole set
 BATCH_SIZE = 1  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
 LEARNING_RATE = 0.01
 N_FEATURES = 1    #1 pour index
-HIDDEN_SIZE = 512
+HIDDEN_SIZE = 256
 NUM_LAYERS = 2
-EPOCHS = 200
+DROPOUT = 0.3
+EPOCHS = 1000
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device :", device)
 
-#-------------- load data and glove
-if exists(FILENAME) and exists(FILENAME0) and exists(FILENAME1) and exists(FILENAME2) and exists(FILENAME3) and exists(FILENAME4) and exists(FILENAME5) and exists(FILENAME6):
-    print("importing data...")
-    with open(FILENAME, "rb") as fp:
-        data0 = pickle.load(fp)
-    with open(FILENAME0, "rb") as fp:
-        data1 = pickle.load(fp)
-    with open(FILENAME1, "rb") as fp:
-        data2 = pickle.load(fp)
-    with open(FILENAME2, "rb") as fp:
-        vocab = pickle.load(fp)
-    with open(FILENAME3, "rb") as fp:
-        word_to_ix = pickle.load(fp)
-    with open(FILENAME4, "rb") as fp:
-        ix_to_word = pickle.load(fp)
-    with open(FILENAME5, "rb") as fp:
-        word_to_oneHot = pickle.load(fp)
-    with open(FILENAME6, "rb") as fp:
-        oneHot_to_word = pickle.load(fp)
 
-    n_features = len(word_to_oneHot["hello"])
-
-    print("data imported !")
-else:
-    print("preparing data...")
-    data, vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, N_FEATURES, oneHot_to_ix, ix_to_oneHot = dataHandlingOneHot.prepareData()
-    print("data and GloVe imported !")
+print("preparing data...")
+data, vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, N_FEATURES, oneHot_to_ix, ix_to_oneHot = dataHandlingOneHot.prepareData()
+print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words
 data = dataPrep.limitLength(data, UTT_LEN)
@@ -93,8 +62,8 @@ T_y_test = []
 #-------------- convert arrays as tensors
 T_X_train = torch.FloatTensor(X_train)
 T_y_train = torch.LongTensor(Y_train)
-T_X_train = torch.reshape(T_X_train, (-1, BATCH_SIZE, int(UTT_LEN/2), N_FEATURES)).to(device)
-T_y_train = torch.reshape(T_y_train, (-1, BATCH_SIZE, int(UTT_LEN/2), 1)).to(device)
+T_X_train = torch.reshape(T_X_train, (-1, int(UTT_LEN/2), BATCH_SIZE, N_FEATURES)).to(device)
+T_y_train = torch.reshape(T_y_train, (-1, int(UTT_LEN/2), BATCH_SIZE, 1)).to(device)
 
 T_X_test = torch.FloatTensor(X_test)
 T_y_test = torch.LongTensor(Y_test)
@@ -108,9 +77,9 @@ print("T_y_train", T_y_train.shape)
 
 print("model declaration")
 #model declaration
-model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS, output_size=N_FEATURES).to(device)
-loss_function = torch.nn.CrossEntropyLoss(reduction='mean')
-optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
+model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS, output_size=N_FEATURES, dropout=DROPOUT).to(device)
+loss_function = torch.nn.CTCLoss(reduction='mean')
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []
 
 print("training model")
@@ -120,9 +89,15 @@ for i in range(EPOCHS):
     loss = 0
     for j in range(len(T_X_train)):
         y_pred = model(T_X_train[j]).to(device)
-        y_pred = torch.reshape(y_pred, (int(UTT_LEN/2), N_FEATURES))
-        exp = torch.reshape(T_y_train[j], (-1,))
-        single_loss = loss_function(y_pred, exp)
+        #y_pred = torch.reshape(y_pred, (BATCH_SIZE, int(UTT_LEN/2), N_FEATURES))
+        exp = torch.reshape(T_y_train[j], (-1, BATCH_SIZE,))
+        input_length = torch.full(size = (BATCH_SIZE,), fill_value=int(UTT_LEN / 2), dtype=torch.long)
+        target_length = torch.randint(low=1, high=N_FEATURES, size=(BATCH_SIZE,), dtype=torch.long)
+        print("input_length", input_length.shape)
+        print("target_length", target_length.shape)
+        print("exp.shape", exp.shape)
+        print("y_pred.shape", y_pred.shape)
+        single_loss = loss_function(y_pred, exp, input_length, target_length)
         loss += single_loss.item()
         single_loss.backward()
         optimizer.step()

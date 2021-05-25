@@ -33,19 +33,19 @@ torch.manual_seed(SEED)
 FILENAME = "./WEdata2.txt"
 DATA_SUBSAMPLE = 2000       #si 0 on prend tout le jeu de données
 SUBSAMPLE = int(DATA_SUBSAMPLE*0.9) #number of phrases in the whole set
-BATCH_SIZE = 20  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+BATCH_SIZE = 200  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 MIN_LEN = 4
 MAX_LEN = 10
 TEST_SIZE = 20
 
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.001
 N_FEATURES = 100    #100 pour GloVe
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 DROPOUT = 0.3
-EPOCHS = 1500
+EPOCHS = 2500
 
-TRAIN_SET = "test"  #"train"
+TRAIN_SET = "test"  #"test"/"train"
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -101,8 +101,11 @@ print("model declaration")
 #-------------- model declaration
 model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS, dropout=DROPOUT).to(device)
 loss_function = torch.nn.MSELoss(reduction='mean')
-optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 losses = []
+
+h = torch.zeros(NUM_LAYERS, BATCH_SIZE, HIDDEN_SIZE)
+c = torch.zeros(NUM_LAYERS, BATCH_SIZE, HIDDEN_SIZE)
 
 print("training model")
 #-------------- model training
@@ -110,9 +113,13 @@ for i in range(EPOCHS):
     model.train()
     loss = 0
     for j in range(len(T_X_train)):
-        y_pred = model(T_X_train[j]).to(device)
+        h = h.to(device)
+        c = c.to(device)
+        y_pred, (h, c) = model(T_X_train[j], (h, c))
         single_loss = loss_function(y_pred, T_y_train[j])
         loss += single_loss.item()
+        h = h.detach()
+        c = c.detach()
         single_loss.backward()
         optimizer.step()
         model.zero_grad()
@@ -123,17 +130,17 @@ print(f'epoch: {i+1:5}/{EPOCHS:5}\tloss: {single_loss.item():10.10f}')
 
 print("model predicting")
 #-------------- predictions
-if TRAIN_SET == "train" :
+if TRAIN_SET == "train":
     T_X_train = T_X_train[:TEST_SIZE]
     T_X_train = torch.reshape(T_X_train, (-1, int(MAX_LEN/2), N_FEATURES)).to(device)
-    predictions = model(T_X_train).to(device)
+    predictions, (_,_) = model(T_X_train)
 
     inp = dataPrep.reverseEmbed(X_train[:TEST_SIZE], glove)
     out = dataPrep.reverseEmbed(Y_train[:TEST_SIZE], glove)
 
 else :
-    T_X_test = T_X_test[:TEST_SIZE]
-    predictions = model(T_X_test).to(device)
+    T_X_test = T_X_test[:TEST_SIZE].to(device)
+    predictions, (_,_) = model(T_X_test)
 
     inp = dataPrep.reverseEmbed(X_test[:TEST_SIZE], glove)
     out = dataPrep.reverseEmbed(Y_test[:TEST_SIZE], glove)
