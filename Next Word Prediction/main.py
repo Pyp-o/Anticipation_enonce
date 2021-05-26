@@ -22,9 +22,9 @@ torch.manual_seed(SEED)
 
 #-------------- Parametres --------------#
 FILENAME = "WEdata.txt"
-SUBSAMPLE = 20001 #number of phrases in the whole set
+SUBSAMPLE =  1001 #number of phrases in the whole set
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9)       #si 0 on prend tout le jeu de données
-BATCH_SIZE = 500
+BATCH_SIZE = 20
 MIN_LEN = 4
 MAX_LEN = 10
 TEST_SIZE = 50
@@ -33,10 +33,10 @@ LEARNING_RATE = 0.001
 N_FEATURES = 100    #100 for GloVe
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
-EPOCHS = 5000
+EPOCHS = 400
 
 TRAIN_SET = "train"  #"train"
-NAME = "../../models/trained_model_"+str(NUM_LAYERS)+"_"+str(HIDDEN_SIZE)+"_"+str(SUBSAMPLE)+".pt"
+NAME = "../../models/NextWord_TrainedModel_"+str(NUM_LAYERS)+"_"+str(HIDDEN_SIZE)+"_"+str(SUBSAMPLE)+".pt" #TODO add encoding in name of the trained model
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -153,13 +153,15 @@ print("reverse predicted tensors to CPU")
 predictions = predictions.cpu().detach().numpy()
 predictions = dataPrep.reverseEmbed(predictions, glove)
 
-for i in range(len(inp)):
-    print(f'\ni:{i:3} {inp[i]}\n{out[i]}\n{predictions[i]}')
-
 print(inp)
+print(out)
 print(predictions)
 
+"""
+for i in range(len(predictions)):
+    print(f'\ni:{i:3} {inp[i]}\n{out[i]}\n{predictions[i]}')
+"""
 #-------------- plot loss
 dataPrep.plotLoss(losses)
 
-torch.save(model.state_dict(), NAME)
+torch.save(model, NAME)

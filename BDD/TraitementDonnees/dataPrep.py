@@ -37,6 +37,15 @@ def parsePhrase(tab):
     data = deleteLastElement(data)
     return data
 
+def parsePhrase2(tab):
+    data = []
+    for d in tab:
+        for e in d:
+            punct = e.split()[-1]
+            c = re.split('\! |\? |\.', e)
+            data.append(c[0]+punct)
+    return data
+
 """ -------------------------------------------------------------------------
 # limit length of each phrase                                               #
 # input : array containing only one phrase by entry                         #
