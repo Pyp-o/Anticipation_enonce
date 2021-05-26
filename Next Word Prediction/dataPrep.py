@@ -216,6 +216,16 @@ def sliding_XY(data):
 
     return X, Y
 
+def sliding_XY2(data):
+    X = []
+    Y = []
+
+    for i in range(len(data)-1):
+        X.append(data[i])
+        Y.append(data[i+1])
+    return X, Y
+
+
 """ -------------------------------------------------------------------------
 # remove spaces injected during parsing and cleaning data                   #
 -------------------------------------------------------------------------"""
@@ -357,11 +367,18 @@ def reverseOneHot(dataset, ix_to_word):
 
 def reverseEmbed(dataset, embed):
     data = []
+    print(dataset)
     for phrase in dataset:
         ph = []
         for word in phrase:
             ph.append(embed.similar_by_vector(word, topn=1))
         data.append(ph)
+    return data
+
+def reverseEmbed2(dataset, embed):
+    data = []
+    for word in dataset:
+        data.append(embed.similar_by_vector(word, topn=1))
     return data
 
 def plotLoss(loss):

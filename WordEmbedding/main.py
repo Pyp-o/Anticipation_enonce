@@ -8,19 +8,6 @@ import dataHandlingWE
 import pickle
 from os.path import exists
 
-#TODO next word prediction without sliding window
-#TODO tester l'impact du nombre de cellules sur les résultats
-#TODO sécuriser et tenter d'obtenir de petits résultats
-
-#TODO présentation dans 2 semaines semaine du 24 mai !!! attention au changement du point de vue et bien expliciter toutes les idées
-#TODO envoyer mail à jérémy riviere pour soutenance de stage le 29/30 juin (début de créneau)
-#TODO finir rapport au plus tard mardi 22juin
-#TODO formalisation (courbes, exemples) des réussites, exemples, comment mesurer l'erreur
-#TODO pourquoi ca fonctionne, pourquoi pas, intuition sur les tailles de cellules
-#TODO prochaine réunion: mardi 18 17h, vendredi 21 14h30
-#TODO présentation commedia semaine 24, répétion le 25 11h
-#TODO draft rapport + réunion pour le 31 14h
-
 #-------------- No random --------------#
 SEED = 0
 np.random.seed(SEED)
@@ -31,9 +18,9 @@ torch.manual_seed(SEED)
 
 #-------------- Parametres --------------#
 FILENAME = "./WEdata2.txt"
-DATA_SUBSAMPLE = 2000       #si 0 on prend tout le jeu de données
-SUBSAMPLE = int(DATA_SUBSAMPLE*0.9) #number of phrases in the whole set
-BATCH_SIZE = 200  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+SUBSAMPLE = 100       #si 0 on prend tout le jeu de données
+DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
+BATCH_SIZE = 1  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 MIN_LEN = 4
 MAX_LEN = 10
 TEST_SIZE = 20
@@ -43,9 +30,9 @@ N_FEATURES = 100    #100 pour GloVe
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 DROPOUT = 0.3
-EPOCHS = 2500
+EPOCHS = 400
 
-TRAIN_SET = "test"  #"test"/"train"
+TRAIN_SET = "train"  #"test"/"train"
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -68,6 +55,7 @@ else:
 
 #-------------- limit lenght of each phrase to 8 words
 data = dataPrep.limitLength2(data, min=MIN_LEN, max=MAX_LEN)  #limit length of phrases bewteen 4 and 10 by default
+print(len(data[0]))
 if DATA_SUBSAMPLE!=0:
     data = data[:DATA_SUBSAMPLE]
 else :
@@ -81,6 +69,9 @@ test = data[SUBSAMPLE:]
 X_train, Y_train = dataPrep.splitX_y2(train)    #split input and output for prediction depending on each utterance length
 X_test, Y_test = dataPrep.splitX_y2(test)
 
+print("len(train[0])", len(train[0]))
+print("len(X_train[0])", len(X_train[0]))
+
 print("converting arrays to tensors...")
 T_X_train = []
 T_y_train = []
@@ -91,21 +82,24 @@ T_X_train = torch.FloatTensor(X_train)
 T_y_train = torch.FloatTensor(Y_train)
 T_X_train = torch.reshape(T_X_train, (-1, BATCH_SIZE, int(MAX_LEN/2), N_FEATURES)).to(device)
 T_y_train = torch.reshape(T_y_train, (-1, BATCH_SIZE, int(MAX_LEN/2), N_FEATURES)).to(device)
+print("T_X_train.shape", T_X_train.shape)
+
 
 T_X_test = torch.FloatTensor(X_test)
 T_y_test = torch.FloatTensor(Y_test)
 T_X_test = torch.reshape(T_X_test, (-1, int(MAX_LEN/2), N_FEATURES)).to(device)
 T_y_test = torch.reshape(T_y_test, (-1, int(MAX_LEN/2), N_FEATURES)).to(device)
+print("T_X_train.shape", T_X_test.shape)
 
 print("model declaration")
 #-------------- model declaration
 model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS, dropout=DROPOUT).to(device)
 loss_function = torch.nn.MSELoss(reduction='mean')
-optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []
 
-h = torch.zeros(NUM_LAYERS, BATCH_SIZE, HIDDEN_SIZE)
-c = torch.zeros(NUM_LAYERS, BATCH_SIZE, HIDDEN_SIZE)
+h = torch.zeros(NUM_LAYERS, BATCH_SIZE, HIDDEN_SIZE).to(device)
+c = torch.zeros(NUM_LAYERS, BATCH_SIZE, HIDDEN_SIZE).to(device)
 
 print("training model")
 #-------------- model training
@@ -117,9 +111,9 @@ for i in range(EPOCHS):
         c = c.to(device)
         y_pred, (h, c) = model(T_X_train[j], (h, c))
         single_loss = loss_function(y_pred, T_y_train[j])
-        loss += single_loss.item()
         h = h.detach()
         c = c.detach()
+        loss += single_loss.item()
         single_loss.backward()
         optimizer.step()
         model.zero_grad()
