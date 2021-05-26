@@ -367,7 +367,6 @@ def reverseOneHot(dataset, ix_to_word):
 
 def reverseEmbed(dataset, embed):
     data = []
-    print(dataset)
     for phrase in dataset:
         ph = []
         for word in phrase:
