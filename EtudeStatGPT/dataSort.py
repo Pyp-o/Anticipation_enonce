@@ -1,6 +1,5 @@
 import pickle
 import dataPrep
-import sys
 
 def saveDictFromRaw(file, output, min=2, max=18, reduction=None):
     #importing and preparing data
@@ -26,14 +25,22 @@ def saveDictFromRaw(file, output, min=2, max=18, reduction=None):
     with open(output, 'wb') as fp:
         pickle.dump(dictionary, fp)
 
+def DictToSorted(file, output):
+    data = pickle.load(open(file, 'rb'))
+
+    sorted_data = []
+    for dict in data:
+        sorted_data.append(sorted(dict))
+
+    with open(output, 'wb') as fp:
+        pickle.dump(sorted_data, fp)
 
 ############    MAIN    ############
 RAW_FILE = '../../DataBase/dialog/dialogues_text.txt'
 EDITED_FILE = "./ParsedData.txt"
-#saveDictFromRaw(RAW_FILE)
-data = pickle.load(open(EDITED_FILE, 'rb'))
+SORTED_FILE = "./SortedData.txt"
 
-#sort by alphabetical order
-for dict in data:
-    for phrase in dict:
-        sys.exit()
+#saveDictFromRaw(RAW_FILE)
+#DictToSorted(EDITED_FILE, SORTED_FILE)
+
+data = pickle.load(open(SORTED_FILE, 'rb'))
