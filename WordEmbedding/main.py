@@ -18,9 +18,9 @@ torch.manual_seed(SEED)
 
 #-------------- Parametres --------------#
 FILENAME = "./WEdata2.txt"
-SUBSAMPLE = 100       #si 0 on prend tout le jeu de données
+SUBSAMPLE = 30000       #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
-BATCH_SIZE = 1  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 MIN_LEN = 4
 MAX_LEN = 10
 TEST_SIZE = 20
@@ -30,9 +30,11 @@ N_FEATURES = 100    #100 pour GloVe
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 DROPOUT = 0.3
-EPOCHS = 400
+EPOCHS = 20000
 
 TRAIN_SET = "train"  #"test"/"train"
+
+NAME = "../../models/WE_trained_model_"+str(NUM_LAYERS)+"_"+str(HIDDEN_SIZE)+"_"+str(SUBSAMPLE)+".pt"
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -149,3 +151,5 @@ for i in range(len(inp)):
 
 #-------------- plot loss
 dataPrep.plotLoss(losses)
+
+torch.save(model.state_dict(), NAME)
