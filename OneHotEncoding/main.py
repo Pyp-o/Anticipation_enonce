@@ -16,9 +16,9 @@ torch.manual_seed(SEED)
 
 
 #-------------- Parametres --------------#
-DATA_SUBSAMPLE = 200        #si 0 on prend tout le jeu de données
-SUBSAMPLE = int(DATA_SUBSAMPLE*0.8) #number of phrases in the whole set
-BATCH_SIZE = 20  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+SUBSAMPLE = 10000        #si 0 on prend tout le jeu de données
+DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
+BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
 LEARNING_RATE = 0.001
@@ -44,8 +44,8 @@ print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words
 data = dataPrep.limitLength(data, UTT_LEN)
-if DATA_SUBSAMPLE!=0:
-    data = data[:DATA_SUBSAMPLE]
+print("data size",len(data))
+
 
 #-------------- split dataset into trainset and testset
 train = data[:SUBSAMPLE]
