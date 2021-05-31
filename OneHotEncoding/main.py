@@ -16,7 +16,7 @@ torch.manual_seed(SEED)
 
 
 #-------------- Parametres --------------#
-SUBSAMPLE = 10000        #si 0 on prend tout le jeu de données
+SUBSAMPLE = 5000        #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
 BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
@@ -44,8 +44,6 @@ print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words
 data = dataPrep.limitLength(data, UTT_LEN)
-print("data size",len(data))
-
 
 #-------------- split dataset into trainset and testset
 train = data[:SUBSAMPLE]
@@ -70,13 +68,13 @@ T_y_test = []
 #-------------- convert arrays as tensors
 T_X_train = torch.FloatTensor(X_train)
 T_y_train = torch.LongTensor(Y_train)
-T_X_train = torch.reshape(T_X_train, (-1, T, N, C)).to(device)
-T_y_train = torch.reshape(T_y_train, (-1, N, S)).to(device)
+T_X_train = torch.reshape(T_X_train, (-1, T, N, C))
+T_y_train = torch.reshape(T_y_train, (-1, N, S))
 
 T_X_test = torch.FloatTensor(X_test)
 T_y_test = torch.LongTensor(Y_test)
-T_X_test = torch.reshape(T_X_test, (-1, int(UTT_LEN/2), N_FEATURES)).to(device)
-T_y_test = torch.reshape(T_y_test, (-1, int(UTT_LEN/2), 1)).to(device)
+T_X_test = torch.reshape(T_X_test, (-1, int(UTT_LEN/2), N_FEATURES))
+T_y_test = torch.reshape(T_y_test, (-1, int(UTT_LEN/2), 1))
 
 print("T_X_train", T_X_train.shape)
 print("T_y_train", T_y_train.shape)
@@ -96,9 +94,9 @@ for i in range(EPOCHS):
     model.train()
     loss = 0
     for j in range(len(T_X_train)):
-        y_pred, (_,_) = model(T_X_train[j])
-        y_pred = torch.reshape(y_pred, (T, N, C))
-        exp = torch.reshape(T_y_train[j], (N, S))
+        X = T_X_train[j].to(device)
+        y_pred, (_,_) = model(X)
+        exp = torch.reshape(T_y_train[j], (N, S)).to(device)
         input_length = torch.full(size = (BATCH_SIZE,), fill_value=T, dtype=torch.long)
         target_length = torch.randint(low=1, high=T, size=(N,), dtype=torch.long)
         single_loss = loss_function(y_pred, exp, input_length, target_length)
@@ -106,6 +104,7 @@ for i in range(EPOCHS):
         single_loss.backward()
         optimizer.step()
         model.zero_grad()
+        exp.detach()
     losses.append(loss)  #loss cumulée pour chaque epoch
     if i%5 == 1:
         print(f'epoch:{i-1:5}/{EPOCHS:3}\tloss: {single_loss.item():10.10f}')
