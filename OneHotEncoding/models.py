@@ -12,8 +12,8 @@ class LSTM(nn.Module):
         self.fc = nn.Linear(hidden_size, output_size) #linear layer to convert hidden processed data into 1 prediction
         self.out = nn.LogSoftmax()
 
-    def forward(self, x):
-        x, _ = self.lstm1(x)
+    def forward(self, x, prev_state=None):
+        x, prev_state = self.lstm1(x, prev_state)
         x = self.fc(x)
         x = self.out(x)
-        return x
+        return x, prev_state

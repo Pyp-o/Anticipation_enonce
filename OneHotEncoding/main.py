@@ -3,8 +3,6 @@ import dataPrep
 import models
 import numpy as np
 import random
-from os.path import exists
-import pickle
 import dataHandlingOneHot
 
 
@@ -20,15 +18,20 @@ torch.manual_seed(SEED)
 #-------------- Parametres --------------#
 DATA_SUBSAMPLE = 200        #si 0 on prend tout le jeu de données
 SUBSAMPLE = int(DATA_SUBSAMPLE*0.8) #number of phrases in the whole set
-BATCH_SIZE = 1  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+BATCH_SIZE = 20  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.001
 N_FEATURES = 1    #1 pour index
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 DROPOUT = 0.3
-EPOCHS = 1000
+EPOCHS = 200
+
+TEST_SET = "test"
+TEST_SIZE = 20
+
+NAME = "../../models/OneHot_trained_model_layer_"+str(NUM_LAYERS)+"_Ncells_"+str(HIDDEN_SIZE)+"_size_"+str(SUBSAMPLE)+"_epochs_"+str(EPOCHS)+".pt"
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,6 +56,11 @@ X_test, Y_test = dataPrep.splitX_y(test, int(UTT_LEN/2))
 Y_train = dataPrep.convertOneHotToIx(Y_train, oneHot_to_ix)
 Y_test = dataPrep.convertOneHotToIx(Y_test, oneHot_to_ix)
 
+#CTC lengths
+T = int(UTT_LEN/2)
+N = BATCH_SIZE
+C = N_FEATURES
+S = int(UTT_LEN/2)
 
 print("convert arrays to tensors")
 T_X_train = []
@@ -62,8 +70,8 @@ T_y_test = []
 #-------------- convert arrays as tensors
 T_X_train = torch.FloatTensor(X_train)
 T_y_train = torch.LongTensor(Y_train)
-T_X_train = torch.reshape(T_X_train, (-1, int(UTT_LEN/2), BATCH_SIZE, N_FEATURES)).to(device)
-T_y_train = torch.reshape(T_y_train, (-1, int(UTT_LEN/2), BATCH_SIZE, 1)).to(device)
+T_X_train = torch.reshape(T_X_train, (-1, T, N, C)).to(device)
+T_y_train = torch.reshape(T_y_train, (-1, N, S)).to(device)
 
 T_X_test = torch.FloatTensor(X_test)
 T_y_test = torch.LongTensor(Y_test)
@@ -88,15 +96,11 @@ for i in range(EPOCHS):
     model.train()
     loss = 0
     for j in range(len(T_X_train)):
-        y_pred = model(T_X_train[j]).to(device)
-        #y_pred = torch.reshape(y_pred, (BATCH_SIZE, int(UTT_LEN/2), N_FEATURES))
-        exp = torch.reshape(T_y_train[j], (-1, BATCH_SIZE,))
-        input_length = torch.full(size = (BATCH_SIZE,), fill_value=int(UTT_LEN / 2), dtype=torch.long)
-        target_length = torch.randint(low=1, high=N_FEATURES, size=(BATCH_SIZE,), dtype=torch.long)
-        print("input_length", input_length.shape)
-        print("target_length", target_length.shape)
-        print("exp.shape", exp.shape)
-        print("y_pred.shape", y_pred.shape)
+        y_pred, (_,_) = model(T_X_train[j])
+        y_pred = torch.reshape(y_pred, (T, N, C))
+        exp = torch.reshape(T_y_train[j], (N, S))
+        input_length = torch.full(size = (BATCH_SIZE,), fill_value=T, dtype=torch.long)
+        target_length = torch.randint(low=1, high=T, size=(N,), dtype=torch.long)
         single_loss = loss_function(y_pred, exp, input_length, target_length)
         loss += single_loss.item()
         single_loss.backward()
@@ -108,19 +112,27 @@ for i in range(EPOCHS):
 print(f'epoch: {i+1:5}/{EPOCHS:5}\tloss: {single_loss.item():10.10f}')
 
 print("model predicting")
-#model predictions
-l = len(T_X_test)
-predictions = model(T_X_test).to(device)
+#-------------- predictions
+if TEST_SET == "train":
+    T_X_train = T_X_train[:TEST_SIZE]
+    T_X_train = torch.reshape(T_X_train, (-1, int(UTT_LEN/2), N_FEATURES)).to(device)
+    predictions, (_,_) = model(T_X_train)
+
+else :
+    T_X_test = T_X_test[:TEST_SIZE].to(device)
+    predictions, (_,_) = model(T_X_test)
 
 print("reverse predicted tensors to CPU")
-#moving back tensors to CPU to treat tensors as numpy array
-predictions = predictions.cpu().detach().numpy()
-
-inp = dataPrep.reverseOneHot(X_train[:l], oneHot_to_word)
-out = dataPrep.reverseOneHot(Y_train[:l], ix_to_word)
+#-------------- moving back tensors to CPU to treat tensors as numpy array
+inp = dataPrep.reverseOneHot(X_train[:TEST_SIZE], oneHot_to_word)
+out = dataPrep.reverseOneHot(Y_train[:TEST_SIZE], ix_to_word)
 predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
+
+
 
 for i in range(len(inp)):
     print(f'\ni:{i:3} input: {inp[i]}\nexpected: {out[i]}\npredicted: {predictions[i]}')
 
 dataPrep.plotLoss(losses)
+
+torch.save(model.state_dict(), NAME)
