@@ -16,7 +16,7 @@ torch.manual_seed(SEED)
 
 
 #-------------- Parametres --------------#
-SUBSAMPLE = 5000        #si 0 on prend tout le jeu de données
+SUBSAMPLE = 1000        #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
 BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
@@ -26,7 +26,7 @@ N_FEATURES = 1    #1 pour index
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 DROPOUT = 0.3
-EPOCHS = 200
+EPOCHS = 5000
 
 TEST_SET = "test"
 TEST_SIZE = 20

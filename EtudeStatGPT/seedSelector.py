@@ -1,4 +1,5 @@
 import pickle
+import sys
 from random import randint
 
 def selectDict(data, length):
@@ -31,13 +32,12 @@ def selectSeedFromDict(data, output, number, index):
 
     return seed
 
-def selectPhrases(file, length=2, number=1):
+def selectPhrases(file, length=18, number=1):
     data = pickle.load(open(file, 'rb'))
-    LENGTH = range(2, len)
-    NUMBER = 200
-    for len in LENGTH:
-        OUTPUT = "./SelectedPhrases/Phrases_" + str(len) + "_" + str(NUMBER) + ".txt"
-        index = selectDict(data, length=len)  # select dictionary depending on phrase length
+    LENGTH = range(2, length)
+    for leng in LENGTH:
+        OUTPUT = "./SelectedPhrases/Phrases_" + str(leng) + "_" + str(number) + ".txt"
+        index = selectDict(data, length=leng)  # select dictionary depending on phrase length
         seed = selectSeedFromDict(data, output=OUTPUT, number=number, index=index)  # return 'number' phrases of the dict at the 'index'
     return seed
 
@@ -47,9 +47,9 @@ def generateSEED(minlength=2, maxlength=18, length=8, output="./test.txt"):
     for leng in LENGTH:
         input = []
         output = []
-        FILE = "./SelectedPhrases/Phrases_" + str(leng) + "_" + str(NUMBER) + ".txt"
+        FILE = "./SelectedPhrases/Phrases_"+str(leng)+"_"+str(NUMBER)+".txt"
         INPUT_FILE = "./Seeds/input_" + str(leng) + "_" + str(NUMBER) + "_" + str(length) + ".txt"
-        OUTPUT_FILE = "./Seeds/output" + str(leng) + "_" + str(NUMBER) + "_" + str(length) + ".txt"
+        OUTPUT_FILE = "./Seeds/output_" + str(leng) + "_" + str(NUMBER) + "_" + str(length) + ".txt"
         data = pickle.load(open(FILE, 'rb'))
         for phrase in data:
             input.append(phrase.split()[:length])
@@ -61,9 +61,12 @@ def generateSEED(minlength=2, maxlength=18, length=8, output="./test.txt"):
             pickle.dump(output, fp)
 
 """--------------------------------------------------"""
-SORTED_FILE = "./SortedData.txt"
-FILE = "./Seeds/input_2_200_3.txt"
-#generateSEED(length=3)
+CLEAN_FILE = "./CleanData.txt"
+SELECTED_FILE = "./SelectedPhrases/Phrases_2_200.txt"
+FILE = "./Seeds/output_5_200_2.txt"
+
+#selectPhrases(CLEAN_FILE, length=18, number=200)
+#generateSEED(length=2)
 
 data = pickle.load(open(FILE, 'rb'))
 print(data)
