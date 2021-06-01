@@ -16,7 +16,7 @@ torch.manual_seed(SEED)
 
 
 #-------------- Parametres --------------#
-SUBSAMPLE = 1000        #si 0 on prend tout le jeu de données
+SUBSAMPLE = 12000        #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
 BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
@@ -26,13 +26,13 @@ N_FEATURES = 1    #1 pour index
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 DROPOUT = 0.3
-EPOCHS = 5000
+EPOCHS = 500
 
 TEST_SET = "test"
 TEST_SIZE = 20
 
 NAME = "../../models/OneHot_trained_model_layer_"+str(NUM_LAYERS)+"_Ncells_"+str(HIDDEN_SIZE)+"_size_"+str(SUBSAMPLE)+"_epochs_"+str(EPOCHS)+".pt"
-
+PATH = "../../models/OneHot_trained_model_layer_2_Ncells_256_size_5000_epochs_1000.pt"
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device :", device)
@@ -53,6 +53,8 @@ X_test, Y_test = dataPrep.splitX_y(test, int(UTT_LEN/2))
 #output back to index for CrossEntropy
 Y_train = dataPrep.convertOneHotToIx(Y_train, oneHot_to_ix)
 Y_test = dataPrep.convertOneHotToIx(Y_test, oneHot_to_ix)
+
+del data
 
 #CTC lengths
 T = int(UTT_LEN/2)
@@ -88,6 +90,8 @@ loss_function = torch.nn.CTCLoss(reduction='mean')
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []
 
+model.load_state_dict(torch.load(PATH))
+model.eval()
 print("training model")
 #model training
 for i in range(EPOCHS):
@@ -127,7 +131,7 @@ inp = dataPrep.reverseOneHot(X_train[:TEST_SIZE], oneHot_to_word)
 out = dataPrep.reverseOneHot(Y_train[:TEST_SIZE], ix_to_word)
 predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
 
-
+del X_train, Y_train, X_test, Y_test, T_X_train, T_y_train, T_X_test, T_y_test
 
 for i in range(len(inp)):
     print(f'\ni:{i:3} input: {inp[i]}\nexpected: {out[i]}\npredicted: {predictions[i]}')
