@@ -16,7 +16,7 @@ torch.manual_seed(SEED)
 
 
 #-------------- Parametres --------------#
-SUBSAMPLE = 2000        #si 0 on prend tout le jeu de données
+SUBSAMPLE = 12000        #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
 BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
@@ -70,9 +70,7 @@ T_X_test = []
 T_y_test = []
 #-------------- convert arrays as tensors
 T_X_train = torch.FloatTensor(X_train)
-del X_train
 T_y_train = torch.LongTensor(Y_train)
-del Y_train
 T_X_train = torch.reshape(T_X_train, (-1, T, N, C))
 T_y_train = torch.reshape(T_y_train, (-1, N, S))
 
@@ -130,11 +128,9 @@ else :
 
 print("reverse predicted tensors to CPU")
 #-------------- moving back tensors to CPU to treat tensors as numpy array
-inp = dataPrep.oneHotClean(T_X_train[:TEST_SIZE], oneHot_to_word)
-out = dataPrep.oneHotClean(T_y_train[:TEST_SIZE], ix_to_word)
+inp = dataPrep.reverseOneHot(X_train[:TEST_SIZE], oneHot_to_word)
+out = dataPrep.reverseOneHot(Y_train[:TEST_SIZE], ix_to_word)
 predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
-
-del X_train, Y_train, X_test, Y_test, T_X_train, T_y_train, T_X_test, T_y_test
 
 for i in range(len(inp)):
     print(f'\ni:{i:3} input: {inp[i]}\nexpected: {out[i]}\npredicted: {predictions[i]}')
