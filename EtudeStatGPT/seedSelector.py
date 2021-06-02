@@ -61,7 +61,7 @@ def generateSEED(minlength=2, maxlength=18, length=8, output="./test.txt"):
             pickle.dump(output, fp)
 
 """--------------------------------------------------"""
-CLEAN_FILE = "./CleanData.txt"
+CLEAN_FILE = "./Data/CleanData.txt"
 SELECTED_FILE = "./SelectedPhrases/Phrases_2_200.txt"
 FILE = "./Seeds/output_5_200_2.txt"
 

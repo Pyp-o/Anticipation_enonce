@@ -55,9 +55,9 @@ def cleanSortedData(file, output):
 
 ############    MAIN    ############
 RAW_FILE = '../../DataBase/dialog/dialogues_text.txt'
-EDITED_FILE = "./ParsedData.txt"
-SORTED_FILE = "./SortedData.txt"
-CLEAN_FILE = "./CleanData.txt"
+EDITED_FILE = "./Data/ParsedData.txt"
+SORTED_FILE = "./Data/SortedData.txt"
+CLEAN_FILE = "./Data/CleanData.txt"
 
 saveDictFromRaw(RAW_FILE, output=EDITED_FILE)
 dictToSorted(EDITED_FILE, SORTED_FILE)

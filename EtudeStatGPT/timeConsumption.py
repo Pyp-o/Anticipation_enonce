@@ -34,7 +34,7 @@ torch.manual_seed(SEED)
 
 
 #-------------- Parametres --------------#
-FILENAME = "./WEdata2.txt"
+FILENAME = "./Data/WEdata2.txt"
 SUBSAMPLE = 100       #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
 BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
