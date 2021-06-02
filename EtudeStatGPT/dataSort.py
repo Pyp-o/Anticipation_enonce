@@ -59,8 +59,8 @@ EDITED_FILE = "./ParsedData.txt"
 SORTED_FILE = "./SortedData.txt"
 CLEAN_FILE = "./CleanData.txt"
 
-#saveDictFromRaw(RAW_FILE, output=EDITED_FILE)
-#dictToSorted(EDITED_FILE, SORTED_FILE)
-#cleanSortedData(SORTED_FILE, CLEAN_FILE)
+saveDictFromRaw(RAW_FILE, output=EDITED_FILE)
+dictToSorted(EDITED_FILE, SORTED_FILE)
+cleanSortedData(SORTED_FILE, CLEAN_FILE)
 
 data = pickle.load(open(CLEAN_FILE, 'rb'))

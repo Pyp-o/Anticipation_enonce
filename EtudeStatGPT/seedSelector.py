@@ -65,8 +65,8 @@ CLEAN_FILE = "./CleanData.txt"
 SELECTED_FILE = "./SelectedPhrases/Phrases_2_200.txt"
 FILE = "./Seeds/output_5_200_2.txt"
 
-#selectPhrases(CLEAN_FILE, length=18, number=200)
-#generateSEED(length=2)
+selectPhrases(CLEAN_FILE, length=18, number=200)
+generateSEED(length=2)
 
 data = pickle.load(open(FILE, 'rb'))
 print(data)

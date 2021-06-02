@@ -16,7 +16,7 @@ torch.manual_seed(SEED)
 
 
 #-------------- Parametres --------------#
-SUBSAMPLE = 12000        #si 0 on prend tout le jeu de données
+SUBSAMPLE = 2000        #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
 BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
@@ -44,17 +44,18 @@ print("data and GloVe imported !")
 
 #-------------- limit lenght of each phrase to 8 words
 data = dataPrep.limitLength(data, UTT_LEN)
-
+data = data[:DATA_SUBSAMPLE]
 #-------------- split dataset into trainset and testset
 train = data[:SUBSAMPLE]
 test = data[SUBSAMPLE:]
+del data
 X_train, Y_train = dataPrep.splitX_y(train, int(UTT_LEN/2))
 X_test, Y_test = dataPrep.splitX_y(test, int(UTT_LEN/2))
 #output back to index for CrossEntropy
 Y_train = dataPrep.convertOneHotToIx(Y_train, oneHot_to_ix)
 Y_test = dataPrep.convertOneHotToIx(Y_test, oneHot_to_ix)
 
-del data
+
 
 #CTC lengths
 T = int(UTT_LEN/2)
@@ -69,12 +70,16 @@ T_X_test = []
 T_y_test = []
 #-------------- convert arrays as tensors
 T_X_train = torch.FloatTensor(X_train)
+del X_train
 T_y_train = torch.LongTensor(Y_train)
+del Y_train
 T_X_train = torch.reshape(T_X_train, (-1, T, N, C))
 T_y_train = torch.reshape(T_y_train, (-1, N, S))
 
 T_X_test = torch.FloatTensor(X_test)
+del X_test
 T_y_test = torch.LongTensor(Y_test)
+del Y_test
 T_X_test = torch.reshape(T_X_test, (-1, int(UTT_LEN/2), N_FEATURES))
 T_y_test = torch.reshape(T_y_test, (-1, int(UTT_LEN/2), 1))
 
@@ -90,8 +95,6 @@ loss_function = torch.nn.CTCLoss(reduction='mean')
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []
 
-model.load_state_dict(torch.load(PATH))
-model.eval()
 print("training model")
 #model training
 for i in range(EPOCHS):
@@ -127,8 +130,8 @@ else :
 
 print("reverse predicted tensors to CPU")
 #-------------- moving back tensors to CPU to treat tensors as numpy array
-inp = dataPrep.reverseOneHot(X_train[:TEST_SIZE], oneHot_to_word)
-out = dataPrep.reverseOneHot(Y_train[:TEST_SIZE], ix_to_word)
+inp = dataPrep.oneHotClean(T_X_train[:TEST_SIZE], oneHot_to_word)
+out = dataPrep.oneHotClean(T_y_train[:TEST_SIZE], ix_to_word)
 predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
 
 del X_train, Y_train, X_test, Y_test, T_X_train, T_y_train, T_X_test, T_y_test
