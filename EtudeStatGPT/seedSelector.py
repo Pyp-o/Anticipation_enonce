@@ -2,7 +2,7 @@ import pickle
 import sys
 from random import randint
 
-def selectDict(data, length):
+def selectDict(data, length):       #select index of dictionaries linked to phrase length
     index = 0
     maxLen = len(data[len(data)-1][0].split())
     minLen = len(data[0][0].split())
@@ -20,7 +20,7 @@ def selectDict(data, length):
     return index
 
 
-def selectSeedFromDict(data, output, number, index):
+def selectPhraseFromDict(data, output, number, index):        #select random phrases from certain dict
     seed = []
     max = len(data[index])
     for i in range(number):
@@ -32,41 +32,39 @@ def selectSeedFromDict(data, output, number, index):
 
     return seed
 
-def selectPhrases(file, length=18, number=1):
+def selectPhrases(file, min_length=2, max_length=18, number=1):           #select random phrases
     data = pickle.load(open(file, 'rb'))
-    LENGTH = range(2, length)
+    LENGTH = range(min_length, max_length)
     for leng in LENGTH:
         OUTPUT = "./SelectedPhrases/Phrases_" + str(leng) + "_" + str(number) + ".txt"
         index = selectDict(data, length=leng)  # select dictionary depending on phrase length
-        seed = selectSeedFromDict(data, output=OUTPUT, number=number, index=index)  # return 'number' phrases of the dict at the 'index'
+        seed = selectPhraseFromDict(data, output=OUTPUT, number=number, index=index)  # return 'number' phrases of the dict at the 'index'
     return seed
 
-def generateSEED(minlength=2, maxlength=18, length=8, output="./test.txt"):
+def generateSEED(minlength=2, maxlength=18, length=range(1,17)):             #from selected phrases, generate Seeds of certain length
     LENGTH = range(minlength, maxlength)
     NUMBER = 200
-    for leng in LENGTH:
-        input = []
-        output = []
-        FILE = "./SelectedPhrases/Phrases_"+str(leng)+"_"+str(NUMBER)+".txt"
-        INPUT_FILE = "./Seeds/input_" + str(leng) + "_" + str(NUMBER) + "_" + str(length) + ".txt"
-        OUTPUT_FILE = "./Seeds/output_" + str(leng) + "_" + str(NUMBER) + "_" + str(length) + ".txt"
-        data = pickle.load(open(FILE, 'rb'))
-        for phrase in data:
-            input.append(phrase.split()[:length])
-            output.append(phrase.split()[length:])
+    for inputLength in length:
+        for leng in LENGTH:
+            input = []
+            output = []
+            FILE = "./SelectedPhrases/Phrases_"+str(leng)+"_"+str(NUMBER)+".txt"
+            INPUT_FILE = "./Seeds/input_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLength) + ".txt"
+            OUTPUT_FILE = "./Seeds/output_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLength) + ".txt"
+            data = pickle.load(open(FILE, 'rb'))
+            for phrase in data:
+                input.append(phrase.split()[:inputLength])
+                output.append(phrase.split()[inputLength:])
 
-        with open(INPUT_FILE, 'wb') as fp:
-            pickle.dump(input, fp)
-        with open(OUTPUT_FILE, 'wb') as fp:
-            pickle.dump(output, fp)
+            with open(INPUT_FILE, 'wb') as fp:
+                pickle.dump(input, fp)
+            with open(OUTPUT_FILE, 'wb') as fp:
+                pickle.dump(output, fp)
 
 """--------------------------------------------------"""
 CLEAN_FILE = "./Data/CleanData.txt"
 SELECTED_FILE = "./SelectedPhrases/Phrases_2_200.txt"
 FILE = "./Seeds/output_5_200_2.txt"
 
-selectPhrases(CLEAN_FILE, length=18, number=200)
-generateSEED(length=2)
-
-data = pickle.load(open(FILE, 'rb'))
-print(data)
+#selectPhrases(CLEAN_FILE, length=18, number=200)
+generateSEED()

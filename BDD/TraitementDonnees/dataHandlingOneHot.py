@@ -22,23 +22,4 @@ def prepareData():
     data = dataPrep.convertPhrasetoIx(data, word_to_oneHot)
     print("words converted to oneHot")
 
-    """
-    with open('OneHotdata0.txt', 'wb') as fp:
-        pickle.dump(data[:int(len(data)/3)], fp)
-    with open('OneHotdata1.txt', 'wb') as fp:
-        pickle.dump(data[int(len(data)/3):2*int(len(data)/3)], fp)
-    with open('OneHotdata1.txt', 'wb') as fp:
-        pickle.dump(data[2*int(len(data)/3):], fp)
-    with open('Vocabdata.txt', 'wb') as fp:
-        pickle.dump(vocab, fp)
-    with open('WordToIxdata.txt', 'wb') as fp:
-        pickle.dump(word_to_ix, fp)
-    with open('IxToWorddata.txt', 'wb') as fp:
-        pickle.dump(ix_to_word, fp)
-    with open('WordToOneHotdata.txt', 'wb') as fp:
-        pickle.dump(word_to_oneHot, fp)
-    with open('OneHotToWorddata.txt', 'wb') as fp:
-        pickle.dump(oneHot_to_word, fp)
-    """
-
     return data, vocab, word_to_oneHot, oneHot_to_word, word_to_ix, ix_to_word, n_features, oneHot_to_ix, ix_to_oneHot

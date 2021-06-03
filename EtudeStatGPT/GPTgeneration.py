@@ -1,14 +1,11 @@
 # creation: 21-apr-2021 pierre.chevaillier@enib.Fr
+
 import sys
 import pickle
 from next_word_prediction import GPT2
 
 # global variables
 eos = ['.', '!', '?']
-
-
-# next word predictor
-gpt2 = GPT2()
 
 
 def predict_next(sentence, depth, corpus):
@@ -26,29 +23,27 @@ def predict_next(sentence, depth, corpus):
             sep = '' if len(w) == 0 or w[0] == '\'' else ' '
             newSentence = sentence + sep + w
             depth += 1
-            predict_next(newSentence, depth, corpus)
+            predict_next(sentence, depth, corpus)
 
     return
 
+# next word predictor
+gpt2 = GPT2()
+depth = 0               #recursion limit
+width = 2               #number of possibilities
+maxLength = 16 + 1 #last : end of sentence   #max number of words to predict from the sentence
 
-# initialText = "The course starts next"
-
-width = 5
-depth = 0
-sentence = "How may I"
-maxLength = 3 + 1 # last : end of sentence
-#predict_next(sentence, depth)
-
-
-LENGTH = range(2, 18)
-NUMBER = 200
-
+LENGTH = range(2, 18)    #sentence length
+NUMBER = 200            #number of phrases per dict
+inputLength= range(1,17)    #length of input, indepent from sentence length
 for leng in LENGTH:
-    FILE = "./Seeds/input_" + str(leng) + "_" + str(NUMBER) + "_2" + ".txt"
-    OUTPUT_FILE = open("./Predictions/predictions_" + str(leng) + "_" + str(NUMBER) + "_2" + ".txt", 'w')
-    data = pickle.load(open(FILE, 'rb'))
-    for sentence in data:
-        s = ' '.join(sentence)
-        print(s)
-        predict_next(sentence=s, depth=depth, corpus=OUTPUT_FILE)
-    OUTPUT_FILE.close()
+    print("phrase length :", leng)
+    for inputLen in inputLength:
+        print("input length:", inputLen)
+        FILE = "./Seeds/input_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
+        OUTPUT_FILE = open("./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt", 'w')
+        data = pickle.load(open(FILE, 'rb'))
+        for sentence in data:
+            s = ' '.join(sentence)  #concatenate each word to have input as 1 string
+            predict_next(sentence=s, depth=depth, corpus=OUTPUT_FILE)
+        OUTPUT_FILE.close()

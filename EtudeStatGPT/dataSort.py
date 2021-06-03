@@ -1,7 +1,7 @@
 import pickle
 import dataPrep
 
-def saveDictFromRaw(file, output, min=2, max=18, reduction=None):
+def saveDictFromRaw(file, output, min=2, max=18, reduction=None):       #sort phrases by length and store them in different dictionaries, encapsuled in one lib
     #importing and preparing data
     df = open(file, encoding='utf-8')    #relative path from main
     data = dataPrep.parseDialogs(df)
@@ -25,7 +25,7 @@ def saveDictFromRaw(file, output, min=2, max=18, reduction=None):
     with open(output, 'wb') as fp:
         pickle.dump(dictionary, fp)
 
-def dictToSorted(file, output):
+def dictToSorted(file, output):     #sort every dict by alphabetical order
     data = pickle.load(open(file, 'rb'))
 
     sorted_data = []
@@ -35,7 +35,7 @@ def dictToSorted(file, output):
     with open(output, 'wb') as fp:
         pickle.dump(sorted_data, fp)
 
-def cleanSortedData(file, output):
+def cleanSortedData(file, output):      #delete all double phrases in the sorted dict
     data = pickle.load(open(file, 'rb'))
 
     prev_phrase = ""
