@@ -46,6 +46,9 @@ def generateSEED(minlength=2, maxlength=18, length=range(1,17)):             #fr
     NUMBER = 200
     for inputLength in length:
         for leng in LENGTH:
+            if inputLength >= leng:
+                print("passed")
+                continue
             input = []
             output = []
             FILE = "./SelectedPhrases/Phrases_"+str(leng)+"_"+str(NUMBER)+".txt"
@@ -64,7 +67,7 @@ def generateSEED(minlength=2, maxlength=18, length=range(1,17)):             #fr
 """--------------------------------------------------"""
 CLEAN_FILE = "./Data/CleanData.txt"
 SELECTED_FILE = "./SelectedPhrases/Phrases_2_200.txt"
-FILE = "./Seeds/output_5_200_2.txt"
+FILE = "./Seeds/input_2_200_4.txt"
 
 #selectPhrases(CLEAN_FILE, length=18, number=200)
 generateSEED()

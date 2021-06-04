@@ -39,6 +39,9 @@ inputLength= range(1,17)    #length of input, indepent from sentence length
 for leng in LENGTH:
     print("phrase length :", leng)
     for inputLen in inputLength:
+        if inputLen >= leng:
+            print("passed")
+            continue
         print("input length:", inputLen)
         FILE = "./Seeds/input_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
         OUTPUT_FILE = open("./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt", 'w')
