@@ -51,7 +51,7 @@ def cleanSortedData(file, output):      #delete all double phrases in the sorted
 
     with open(output, 'wb') as fp:
         pickle.dump(dat, fp)
-
+    return dat
 
 ############    MAIN    ############
 RAW_FILE = '../../DataBase/dialog/dialogues_text.txt'

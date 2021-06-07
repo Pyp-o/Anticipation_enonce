@@ -65,9 +65,10 @@ def generateSEED(minlength=2, maxlength=18, length=range(1,17)):             #fr
                 pickle.dump(output, fp)
 
 """--------------------------------------------------"""
-CLEAN_FILE = "./Data/CleanData.txt"
-SELECTED_FILE = "./SelectedPhrases/Phrases_2_200.txt"
-FILE = "./Seeds/input_2_200_4.txt"
+def main():
+    CLEAN_FILE = "./Data/CleanData.txt"
+    SELECTED_FILE = "./SelectedPhrases/Phrases_2_200.txt"
+    FILE = "./Seeds/input_2_200_4.txt"
 
-#selectPhrases(CLEAN_FILE, length=18, number=200)
-generateSEED()
+    #selectPhrases(CLEAN_FILE, length=18, number=200)
+    generateSEED()
