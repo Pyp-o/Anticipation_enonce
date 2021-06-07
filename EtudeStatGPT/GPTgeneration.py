@@ -31,18 +31,17 @@ def predict_next(sentence, depth, corpus):
 gpt2 = GPT2()
 depth = 0               #recursion limit
 width = 2               #number of possibilities
-maxLength = 16 + 1 #last : end of sentence   #max number of words to predict from the sentence
-
 LENGTH = range(2, 18)    #sentence length
 NUMBER = 200            #number of phrases per dict
 inputLength= range(1,17)    #length of input, indepent from sentence length
-for leng in LENGTH:
-    print("phrase length :", leng)
-    for inputLen in inputLength:
+for inputLen in inputLength:
+    for leng in LENGTH:
+        print("phrase length :", leng)
+        print("input length:", inputLen)
         if inputLen >= leng:
             print("passed")
             continue
-        print("input length:", inputLen)
+        maxLength = leng-inputLen+1     #limit time consumption
         FILE = "./Seeds/input_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
         OUTPUT_FILE = open("./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt", 'w')
         data = pickle.load(open(FILE, 'rb'))
