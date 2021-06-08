@@ -73,7 +73,8 @@ def cleanSortedData(file):      #delete all double phrases in the sorted dict
     return dat
 
 #-----------------------------------------------------------------------------------------------------------------------
-main()
+#main()
+"""
 for inputLen in inputLength:
     for leng in LENGTH:
         if inputLen >= leng:
@@ -81,6 +82,9 @@ for inputLen in inputLength:
         FILE = "./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
         OUTPUT_FILE = "./Predictions/InputLength_" + str(inputLen) + "/scores_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
 
+
 OUTPUT_FILE = "./Predictions/InputLength_" + str(10) + "/scores_" + str(11) + "_" + str(200) + "_" + str(10) + ".txt"
-data = pickle.load(open(OUTPUT_FILE, 'rb'))
-print(data)
+score = pickle.load(open(OUTPUT_FILE, 'rb'))
+print(score)
+"""
+#TODO idée : faire l'étude des phrases qui n'ont pas été prédites pour déceler une faible régularité
