@@ -12,8 +12,8 @@ def main():
     length_repartition = {i: 0 for i in range(19)}
     true_length_repartition = {i: 0 for i in range(19)}
     number_preds = 0
-    true_repartition_by_length = {i: [] for i in range(19)}
-    all_scores = []
+    true_repartition_by_length = {i: [] for i in range(19)}     #tous les scores en pourcentages
+    all_scores = []                                             #tous les scores en fonction de la longueur
     all_preds = []
     number_true_preds = 0
     per_preds_in_data = 0
@@ -22,7 +22,6 @@ def main():
         for leng in LENGTH:
             if inputLen >= leng:
                 continue
-            FILE = "./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
             OUTPUT_FILE = "./Predictions/InputLength_" + str(inputLen) + "/scores_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
             score = pickle.load(open(OUTPUT_FILE, 'rb'))
 
@@ -33,9 +32,15 @@ def main():
             all_scores = allScores(score, all_scores)
             all_preds = numberDiffPred(score, all_preds)
             number_true_preds = numberTruePreds(score, number_true_preds)
-    per_preds_in_data = percPredsOfBDD(data, number_true_preds)
-    print(number_true_preds)
-    print(per_preds_in_data)
+    #per_preds_in_data = percPredsOfBDD(data, number_true_preds)
+    print("nombre total de prédictions :", number_preds)
+    print("nombre total de prédictions correctes:", number_true_preds)
+    print("nombre prédictions différentes:", len(all_preds))
+
+    print("repartition des longueurs des prédictions :",length_repartition)
+    print("repartition des longueurs des prédictions correctes :", true_length_repartition)
+
+    print("pourcentage de phrases prédites dans la BDD :",per_preds_in_data)
 
     return
 
@@ -59,50 +64,66 @@ def predTrueRepartitionByLength(scores, true_repartition_by_length):    #répart
         true_repartition_by_length[score[1]].append(score[2])
     return true_repartition_by_length
 
-def allScores(scores, all_scores):
+def allScores(scores, all_scores):      #score de chaque prédiction en pourcentage en fonction de la longueur des prédictions
     for score in scores:
         perc = score[2]/score[1]
         all_scores.append(perc)
     return all_scores
 
-def numberDiffPred(scores, dict):
+def numberDiffPred(scores, dict):       #dictionnaire des prédictions, toutes sont différentes
     for score in scores:
         if score[0] not in dict:
             dict.append(score[0])
     return dict
 
-def numberTruePreds(scores, number_true_preds):    #répartition du nombre de prédictions justes en fonction de la longueur
+def numberTruePreds(scores, number_true_preds):    #nombre de prédictions justes
     for score in scores:
         if score[1] == score[2]:
             number_true_preds+=1
     return number_true_preds
 
-def percPredsOfBDD(clean_data, number_true_preds):
+def percPredsOfBDD(clean_data, number_true_preds):  #proportion de phrases de la BDD que cela représente
     number_total = 0
     for dict in clean_data:
         number_total+=len(dict)
     return  number_true_preds/number_total
 
 
-"""
-#répartition du nombre de prédictions en fonction de la longueur        XXXXXXXXXXXXXX
-répartition du nombre de prédictions justes en fonction de la longueur  XXXXXXXXXXXXXX
-répartition du score de la prédictions, séparées par leur longueur totale en nombre de mots justes     XXXXXXXXXXXXXX
-répartition du score de la prédiction au total en %     XXXXXXXXXXXXXX
-nb total de prédictions     XXXXXXXXXXXXXX
-nb de prédictions différentes       XXXXXXXXXXXXXX
-nb de prédictions justes        XXXXXXXXXXXXXX
-proportion de phrases de la BDD que cela représente     XXXXXXXXXXXXXX
-"""
+#-------------------------------------------------------------------------
+def fileStat(inputLen, expectedLen, n_samples=200):
+    print()
+    print("expectedLen", expectedLen)
+    #stats variables
+    length_repartition = {i: 0 for i in range(19)}
+    true_length_repartition = {i: 0 for i in range(19)}
+    number_preds = 0
+    true_repartition_by_length = {i: [] for i in range(19)}  # tous les scores en pourcentages
+    all_scores = []  # tous les scores en fonction de la longueur
+    all_preds = []
+    number_true_preds = 0
+    per_preds_in_data = 0
+
+    OUTPUT_FILE = "./Predictions/InputLength_" + str(inputLen) + "/scores_" + str(expectedLen) + "_" + str(n_samples) + "_" + str(inputLen) + ".txt"
+    score = pickle.load(open(OUTPUT_FILE, 'rb'))
+
+    length_repartition = predLength(score, length_repartition)
+    number_preds = totalPredicts(score, number_preds)
+    true_length_repartition = predTrueLength(score, true_length_repartition)
+    true_repartition_by_length = predTrueRepartitionByLength(score, true_repartition_by_length)
+    all_scores = allScores(score, all_scores)
+    all_preds = numberDiffPred(score, all_preds)
+    number_true_preds = numberTruePreds(score, number_true_preds)
+
+    print("nombre total de prédictions :", number_preds)
+    print("nombre total de prédictions correctes:", number_true_preds)
+    print("nombre prédictions différentes:", len(all_preds))
+
+    print("repartition des longueurs des prédictions :", length_repartition)
+    print("repartition des longueurs des prédictions correctes :", true_length_repartition)
 
 
+    return
 
 #-------------------------------------------------------------------------
-def other():
-    length_repartition = {i:0 for i in range(18)}
-    all_scores = []
-    OUTPUT_FILE = "./Predictions/InputLength_" + str(10) + "/scores_" + str(11) + "_" + str(200) + "_" + str(10) + ".txt"
-    score = pickle.load(open(OUTPUT_FILE, 'rb'))
-    allScores(score, all_scores)
-
-main()
+for length in range(9, 18):
+    fileStat(8, length)

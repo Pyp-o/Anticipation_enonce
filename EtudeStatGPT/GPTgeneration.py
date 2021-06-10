@@ -46,6 +46,7 @@ for inputLen in inputLength:
         OUTPUT_FILE = open("./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt", 'w')
         data = pickle.load(open(FILE, 'rb'))
         for sentence in data:
+            depth = 0
             s = ' '.join(sentence)  #concatenate each word to have input as 1 string
             predict_next(sentence=s, depth=depth, corpus=OUTPUT_FILE)
         OUTPUT_FILE.close()
