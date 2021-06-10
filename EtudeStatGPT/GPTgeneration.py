@@ -33,12 +33,12 @@ depth = 0               #recursion limit
 width = 2               #number of possibilities
 LENGTH = range(2, 18)    #sentence length
 NUMBER = 200            #number of phrases per dict
-inputLength= range(1,17)    #length of input, indepent from sentence length
+inputLength= range(2,17)    #length of input, indepent from sentence length
 for inputLen in inputLength:
     for leng in LENGTH:
         print("phrase length :", leng)
         print("input length:", inputLen)
-        if inputLen >= leng:
+        if inputLen >= leng-1:
             print("passed")
             continue
         maxLength = leng-inputLen+1     #limit time consumption
