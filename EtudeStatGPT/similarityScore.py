@@ -10,7 +10,7 @@ def main():
     data = pickle.load(open(dataFile, 'rb'))
     for inputLen in inputLength:
         for leng in LENGTH:
-            if inputLen >= leng:
+            if inputLen >= leng-1:
                 print("passed")
                 continue
             FILE = "./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"

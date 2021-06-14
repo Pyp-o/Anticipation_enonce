@@ -8,7 +8,7 @@ from next_word_prediction import GPT2
 eos = ['.', '!', '?']
 
 
-def predict_next(sentence, depth, corpus):
+def predict_next(sentence, depth, corpus, maxLength):
     if depth > maxLength:
         return 1
     nextWords = gpt2.predict_next(sentence, width)
@@ -23,9 +23,20 @@ def predict_next(sentence, depth, corpus):
             sep = '' if len(w) == 0 or w[0] == '\'' else ' '
             newSentence = sentence + sep + w
             depth += 1
-            predict_next(sentence, depth, corpus)
+            predict_next(sentence, depth, corpus, maxLength)
 
     return
+
+def manquant():
+    FILE = "./Seeds/input_" + str(17) + "_" + str(200) + "_" + str(2) + ".txt"
+    OUTPUT_FILE = open("./Predictions/InputLength_" + str(2) + "/prediction_" + str(17) + "_" + str(200) + "_" + str(2) + ".txt", 'w')
+    maxLength = 17 - 2 + 3  # limit time consumption
+    data = pickle.load(open(FILE, 'rb'))
+    for sentence in data:
+        depth = 0
+        s = ' '.join(sentence)  # concatenate each word to have input as 1 string
+        predict_next(sentence=s, depth=depth, corpus=OUTPUT_FILE, maxLength=maxLength)
+    OUTPUT_FILE.close()
 
 # next word predictor
 gpt2 = GPT2()
@@ -33,7 +44,8 @@ depth = 0               #recursion limit
 width = 2               #number of possibilities
 LENGTH = range(2, 18)    #sentence length
 NUMBER = 200            #number of phrases per dict
-inputLength= range(2,17)    #length of input, indepent from sentence length
+inputLength= range(3,17)    #length of input, indepent from sentence length
+
 for inputLen in inputLength:
     for leng in LENGTH:
         print("phrase length :", leng)
@@ -41,12 +53,13 @@ for inputLen in inputLength:
         if inputLen >= leng-1:
             print("passed")
             continue
-        maxLength = leng-inputLen+1     #limit time consumption
+        maxLength = leng-inputLen+3     #limit time consumption
+        print("max length : ", maxLength)
         FILE = "./Seeds/input_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
         OUTPUT_FILE = open("./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt", 'w')
         data = pickle.load(open(FILE, 'rb'))
         for sentence in data:
             depth = 0
             s = ' '.join(sentence)  #concatenate each word to have input as 1 string
-            predict_next(sentence=s, depth=depth, corpus=OUTPUT_FILE)
+            predict_next(sentence=s, depth=depth, corpus=OUTPUT_FILE, maxLength=maxLength)
         OUTPUT_FILE.close()
