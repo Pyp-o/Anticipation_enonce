@@ -18,19 +18,19 @@ torch.manual_seed(SEED)
 
 #-------------- Parametres --------------#
 FILENAME = "./WEdata2.txt"
-SUBSAMPLE = 30000       #si 0 on prend tout le jeu de données
+SUBSAMPLE = 12000       #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
-BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+BATCH_SIZE = 120  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 MIN_LEN = 4
 MAX_LEN = 10
 TEST_SIZE = 20
 
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.01
 N_FEATURES = 100    #100 pour GloVe
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 DROPOUT = 0.3
-EPOCHS = 20000
+EPOCHS = 1000
 
 TRAIN_SET = "train"  #"test"/"train"
 
@@ -99,7 +99,7 @@ model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NU
 loss_function = torch.nn.MSELoss(reduction='mean')
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []
-
+test_losses = []
 h = torch.zeros(NUM_LAYERS, BATCH_SIZE, HIDDEN_SIZE).to(device)
 c = torch.zeros(NUM_LAYERS, BATCH_SIZE, HIDDEN_SIZE).to(device)
 
@@ -108,6 +108,11 @@ print("training model")
 for i in range(EPOCHS):
     model.train()
     loss = 0
+    predictions, (_,_) = model(T_X_test)
+    single_loss = loss_function(predictions, T_y_test)
+    test_losses.append(single_loss.item())
+    model.zero_grad()
+
     for j in range(len(T_X_train)):
         h = h.to(device)
         c = c.to(device)
@@ -119,11 +124,12 @@ for i in range(EPOCHS):
         single_loss.backward()
         optimizer.step()
         model.zero_grad()
-    losses.append(loss)  #loss cumulée pour chaque epoch
+    losses.append(loss/len(T_X_train))  #loss cumulée pour chaque epoch
     if i%5 == 1:
         print(f'epoch:{i-1:5}/{EPOCHS:3}\tloss: {single_loss.item():10.10f}')
 print(f'epoch: {i+1:5}/{EPOCHS:5}\tloss: {single_loss.item():10.10f}')
 
+"""
 print("model predicting")
 #-------------- predictions
 if TRAIN_SET == "train":
@@ -148,8 +154,9 @@ predictions = dataPrep.reverseEmbed(predictions, glove)
 
 for i in range(len(inp)):
     print(f'\ni:{i:3} {inp[i]}\n{out[i]}\n{predictions[i]}')
-
+"""
 #-------------- plot loss
 dataPrep.plotLoss(losses)
+dataPrep.plotLoss(test_losses)
 
-torch.save(model.state_dict(), NAME)
+#torch.save(model.state_dict(), NAME)

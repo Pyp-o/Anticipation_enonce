@@ -25,16 +25,16 @@ FILENAME1 = "./Vocabdata.txt"
 FILENAME2 = "./WordToIxdata.txt"
 FILENAME3 = "./IxToWorddata.txt"
 
-DATA_SUBSAMPLE = 200        #si 0 on prend tout le jeu de données
-SUBSAMPLE = int(DATA_SUBSAMPLE*0.8) #number of phrases in the whole set
-BATCH_SIZE = 16  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+SUBSAMPLE = 12000        #si 0 on prend tout le jeu de données
+DATA_SUBSAMPLE = int(SUBSAMPLE/0.8) #number of phrases in the whole set
+BATCH_SIZE = 120  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.01
 N_FEATURES = 1    #1 pour index
-HIDDEN_SIZE = 512
+HIDDEN_SIZE = 256
 NUM_LAYERS = 2
-EPOCHS = 500
+EPOCHS = 1000
 
 
 
@@ -99,14 +99,19 @@ print("model declaration")
 #model declaration
 model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS).to(device)
 loss_function = torch.nn.MSELoss(reduction='mean')
-optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []
+test_losses = []
 
 print("training model")
 #-------------- model training
 for i in range(EPOCHS):
     model.train()
     loss = 0
+    predictions = model(T_X_test).to(device)
+    single_loss = loss_function(predictions, T_y_test)
+    test_losses.append(single_loss.item())
+    model.zero_grad()
     for j in range(len(T_X_train)):
         y_pred = model(T_X_train[j]).to(device)
         single_loss = loss_function(y_pred, T_y_train[j])
@@ -114,7 +119,7 @@ for i in range(EPOCHS):
         single_loss.backward()
         optimizer.step()
         model.zero_grad()
-    losses.append(loss)  #loss cumulée pour chaque epoch
+    losses.append(loss/len(T_X_train))  #loss cumulée pour chaque epoch
     if i%5 == 1:
         print(f'epoch:{i-1:5}/{EPOCHS:3}\tloss: {single_loss.item():10.10f}')
 print(f'epoch: {i+1:5}/{EPOCHS:5}\tloss: {single_loss.item():10.10f}')
@@ -130,12 +135,14 @@ predictions = predictions.cpu().detach().numpy()
 inp = scaler.inverse_transform(X_train[:l])
 out = scaler.inverse_transform(Y_train)
 predictions = dataPrep.reverseTransformedPrediction(predictions, scaler)
-
+"""
 inp = dataPrep.convertIxtoPhrase(inp, ix_to_word)
 out = dataPrep.convertIxtoPhrase(out, ix_to_word)
 predictions = dataPrep.convertIxtoPhrase(predictions, ix_to_word)
 
 for i in range(len(inp)):
     print(f'\ni:{i:3} input: {inp[i]}\nexpected: {out[i]}\npredicted: {predictions[i]}')
+"""
 
 dataPrep.plotLoss(losses)
+dataPrep.plotLoss(test_losses)
