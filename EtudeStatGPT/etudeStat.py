@@ -117,7 +117,7 @@ def fileStat(inputLen, expectedLen, n_samples=200):
     all_scores = allScores(score, all_scores)
     all_preds = numberDiffPred(score, all_preds)
     number_true_preds = numberTruePreds(score, number_true_preds)
-    print(score[0])
+
     print("nombre total de prédictions :", number_preds)
     print("nombre total de prédictions correctes:", number_true_preds)
     print("nombre prédictions différentes:", len(all_preds))
@@ -126,14 +126,15 @@ def fileStat(inputLen, expectedLen, n_samples=200):
     print("repartition des longueurs des prédictions correctes :", true_length_repartition)
 
 
-    return
+    return number_preds
 
 def InputStat(input):
+    nb = 0
     for length in range(input + 1, 18):
-        fileStat(input, length)
-
+        nb+=fileStat(input, length)
+    print("nb de pred pour input=", input, " :", nb)
 #-------------------------------------------------------------------------
 
-main(dif=True)
+#main(dif=False)
 
-#InputStat(3)
+InputStat(14)
