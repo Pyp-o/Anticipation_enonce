@@ -18,15 +18,15 @@ torch.manual_seed(SEED)
 #-------------- Parametres --------------#
 SUBSAMPLE = 12000        #si 0 on prend tout le jeu de données
 DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
-BATCH_SIZE = 250  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
+BATCH_SIZE = 120  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.01
 N_FEATURES = 1    #1 pour index
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 DROPOUT = 0.3
-EPOCHS = 500
+EPOCHS = 1000
 
 TEST_SET = "test"
 TEST_SIZE = 20
@@ -78,8 +78,8 @@ T_X_test = torch.FloatTensor(X_test)
 del X_test
 T_y_test = torch.LongTensor(Y_test)
 del Y_test
-T_X_test = torch.reshape(T_X_test, (-1, int(UTT_LEN/2), N_FEATURES))
-T_y_test = torch.reshape(T_y_test, (-1, int(UTT_LEN/2), 1))
+T_X_test = torch.reshape(T_X_test, (-1, T, 1, C))
+T_y_test = torch.reshape(T_y_test, (-1, 1, S))
 
 print("T_X_train", T_X_train.shape)
 print("T_y_train", T_y_train.shape)
@@ -92,13 +92,28 @@ model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NU
 loss_function = torch.nn.CTCLoss(reduction='mean')
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []
+test_losses = []
 
 print("training model")
 #model training
 for i in range(EPOCHS):
     model.train()
     loss = 0
+    test_loss = 0
+
+
     for j in range(len(T_X_train)):
+        if j<len(T_X_test):
+            Xt = T_X_test[j].to(device)
+            yt_pred, (_, _) = model(Xt)
+            expt = torch.reshape(T_y_test[j], (1, S)).to(device)
+            input_lengtht = torch.full(size=(1,), fill_value=T, dtype=torch.long)
+            target_lengtht = torch.randint(low=1, high=T, size=(1,), dtype=torch.long)
+            single_loss = loss_function(yt_pred, expt, input_lengtht, target_lengtht)
+            test_loss+=single_loss.item()
+            model.zero_grad()
+
+
         X = T_X_train[j].to(device)
         y_pred, (_,_) = model(X)
         exp = torch.reshape(T_y_train[j], (N, S)).to(device)
@@ -110,11 +125,12 @@ for i in range(EPOCHS):
         optimizer.step()
         model.zero_grad()
         exp.detach()
-    losses.append(loss)  #loss cumulée pour chaque epoch
+    losses.append(loss/len(T_X_train))  #loss cumulée pour chaque epoch
+    test_losses.append(loss / len(T_X_test))  # loss cumulée pour chaque epoch
     if i%5 == 1:
         print(f'epoch:{i-1:5}/{EPOCHS:3}\tloss: {single_loss.item():10.10f}')
 print(f'epoch: {i+1:5}/{EPOCHS:5}\tloss: {single_loss.item():10.10f}')
-
+"""
 print("model predicting")
 #-------------- predictions
 if TEST_SET == "train":
@@ -134,7 +150,8 @@ predictions = dataPrep.oneHotClean(predictions, oneHot_to_word)
 
 for i in range(len(inp)):
     print(f'\ni:{i:3} input: {inp[i]}\nexpected: {out[i]}\npredicted: {predictions[i]}')
-
+"""
 dataPrep.plotLoss(losses)
+dataPrep.plotLoss(test_losses)
 
 torch.save(model.state_dict(), NAME)

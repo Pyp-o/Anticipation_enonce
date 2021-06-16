@@ -1,6 +1,11 @@
 import pickle
 
-def main():
+def main(dif=False):
+    if dif == True:
+        jump=1
+    else:
+        jump=0
+
     #main variables
     CLEAN_FILE = "./Data/CleanData.txt"
     data = pickle.load(open(CLEAN_FILE, 'rb'))
@@ -20,10 +25,10 @@ def main():
 
     for inputLen in inputLength:
         for leng in LENGTH:
-            if inputLen >= leng:
+            if inputLen >= leng-jump:
                 continue
-            OUTPUT_FILE = "./Predictions/InputLength_" + str(inputLen) + "/scores_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
-            score = pickle.load(open(OUTPUT_FILE, 'rb'))
+            SCORE_FILE = "./Predictions/InputLength_" + str(inputLen) + "/scores_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
+            score = pickle.load(open(SCORE_FILE, 'rb'))
 
             length_repartition = predLength(score, length_repartition)
             number_preds = totalPredicts(score, number_preds)
@@ -103,9 +108,8 @@ def fileStat(inputLen, expectedLen, n_samples=200):
     number_true_preds = 0
     per_preds_in_data = 0
 
-    OUTPUT_FILE = "./Predictions/InputLength_" + str(inputLen) + "/scores_" + str(expectedLen) + "_" + str(n_samples) + "_" + str(inputLen) + ".txt"
-    score = pickle.load(open(OUTPUT_FILE, 'rb'))
-
+    SCORE_FILE = "./Predictions/InputLength_" + str(inputLen) + "/scores_" + str(expectedLen) + "_" + str(n_samples) + "_" + str(inputLen) + ".txt"
+    score = pickle.load(open(SCORE_FILE, 'rb'))
     length_repartition = predLength(score, length_repartition)
     number_preds = totalPredicts(score, number_preds)
     true_length_repartition = predTrueLength(score, true_length_repartition)
@@ -113,7 +117,7 @@ def fileStat(inputLen, expectedLen, n_samples=200):
     all_scores = allScores(score, all_scores)
     all_preds = numberDiffPred(score, all_preds)
     number_true_preds = numberTruePreds(score, number_true_preds)
-
+    print(score[0])
     print("nombre total de prédictions :", number_preds)
     print("nombre total de prédictions correctes:", number_true_preds)
     print("nombre prédictions différentes:", len(all_preds))
@@ -124,6 +128,12 @@ def fileStat(inputLen, expectedLen, n_samples=200):
 
     return
 
+def InputStat(input):
+    for length in range(input + 1, 18):
+        fileStat(input, length)
+
 #-------------------------------------------------------------------------
-for length in range(9, 18):
-    fileStat(8, length)
+
+main(dif=True)
+
+#InputStat(3)
