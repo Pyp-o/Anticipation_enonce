@@ -20,8 +20,11 @@ def predict_next(sentence, depth, corpus, maxLength, num_write, max_pred):
         if isTerminal:
             sentence += w
             #print(sentence)
-            corpus.write(sentence + '\n')
-            num_write+=1
+            try:
+                corpus.write(sentence + '\n')
+                num_write+=1
+            except:
+                print("phrase error")
             return num_write
         else:
             sep = '' if len(w) == 0 or w[0] == '\'' else ' '
@@ -47,10 +50,10 @@ def manquant():
 gpt2 = GPT2()
 depth = 0               #recursion limit
 width = 2               #number of possibilities
-LENGTH = range(14, 15)    #sentence length
+LENGTH = range(3, 18)    #sentence length
 NUMBER = 200            #number of phrases per dict
-inputLength= range(2,3)    #length of input, indepent from sentence length
-max_pred = 50
+inputLength= range(2,17)    #length of input, indepent from sentence length
+max_pred = 20
 
 for inputLen in inputLength:
     for leng in LENGTH:
