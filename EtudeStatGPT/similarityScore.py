@@ -18,7 +18,7 @@ def main():
             #predictions = open(FILE).read().split("\n")
             predictions = cleanSortedData(FILE)
             scores = []
-            print()
+            print('\n')
             print("input len", inputLen)
             print("expected len", leng)
             for predictPhrase in predictions:
