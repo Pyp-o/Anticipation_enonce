@@ -178,6 +178,8 @@ del(df)
 #utterance example
 randPrint(transcript)
 
+print("nb d'utterances :", len(transcript))
+
 #var
 nbWord = []
 nbUtt = []
