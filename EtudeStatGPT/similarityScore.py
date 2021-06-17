@@ -3,7 +3,7 @@ from seedSelector import selectDict
 
 LENGTH = range(3, 18)    #sentence length
 NUMBER = 200            #number of phrases per dict
-inputLength= range(2,17)    #length of input, indepent from sentence length
+inputLength= range(3,17)    #length of input, indepent from sentence length
 
 def main():
     dataFile = "./Data/CleanData.txt"
@@ -18,8 +18,11 @@ def main():
             #predictions = open(FILE).read().split("\n")
             predictions = cleanSortedData(FILE)
             scores = []
+            print()
+            print("input len", inputLen)
+            print("expected len", leng)
             for predictPhrase in predictions:
-                index = selectDict(data, len(predictPhrase.split()))  # get index of dict for each phrase
+                #index = selectDict(data, len(predictPhrase.split()))  # get index of dict for each phrase
                 #dict = data[index]
                 scores.append(getScore(predictPhrase, data, inputLen))
 
