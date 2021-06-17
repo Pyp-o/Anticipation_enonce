@@ -52,7 +52,7 @@ depth = 0               #recursion limit
 width = 2               #number of possibilities
 LENGTH = range(3, 18)    #sentence length
 NUMBER = 200            #number of phrases per dict
-inputLength= range(6,17)    #length of input, indepent from sentence length
+inputLength= range(4,6)    #length of input, indepent from sentence length
 max_pred = 20
 
 for inputLen in inputLength:

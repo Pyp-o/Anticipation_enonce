@@ -180,6 +180,8 @@ del(df)
 #utterance example
 randPrint(utterance)
 
+print("nb d'utterances :", len(utterance))
+
 #var
 nbWord = []
 nbUtt = []
