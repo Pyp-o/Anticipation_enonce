@@ -3,14 +3,14 @@ from seedSelector import selectDict
 
 LENGTH = range(3, 18)    #sentence length
 NUMBER = 200            #number of phrases per dict
-inputLength= range(3,17)    #length of input, indepent from sentence length
+inputLength= range(5,17)    #length of input, indepent from sentence length
 
 def main():
     dataFile = "./Data/CleanData.txt"
     data = pickle.load(open(dataFile, 'rb'))
     for inputLen in inputLength:
         for leng in LENGTH:
-            if inputLen >= leng-1:
+            if inputLen >= leng:
                 print("passed")
                 continue
             FILE = "./Predictions/InputLength_" + str(inputLen) + "/prediction_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"

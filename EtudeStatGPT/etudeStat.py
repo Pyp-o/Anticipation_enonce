@@ -8,16 +8,17 @@ def main(dif=False):
 
     #main variables
     CLEAN_FILE = "./Data/CleanData.txt"
+    OUTPUT_FILE = "./Predictions/globalScoreResult.txt"
     data = pickle.load(open(CLEAN_FILE, 'rb'))
     LENGTH = range(3, 18)    #sentence length
     NUMBER = 200            #number of phrases per dict
     inputLength= range(2,17)    #length of input, indepent from sentence length
 
     #stat variables
-    length_repartition = {i: 0 for i in range(19)}
-    true_length_repartition = {i: 0 for i in range(19)}
+    length_repartition = {i: 0 for i in range(20)}
+    true_length_repartition = {i: 0 for i in range(20)}
     number_preds = 0
-    true_repartition_by_length = {i: [] for i in range(19)}     #tous les scores en pourcentages
+    true_repartition_by_length = {i: [] for i in range(20)}     #tous les scores en pourcentages
     all_scores = []                                             #tous les scores en fonction de la longueur
     all_preds = []
     number_true_preds = 0
@@ -25,6 +26,9 @@ def main(dif=False):
 
     for inputLen in inputLength:
         for leng in LENGTH:
+            print()
+            print("phrase length :", leng)
+            print("input length:", inputLen)
             if inputLen >= leng-jump:
                 continue
             SCORE_FILE = "./Predictions/InputLength_" + str(inputLen) + "/scores_" + str(leng) + "_" + str(NUMBER) + "_" + str(inputLen) + ".txt"
@@ -45,7 +49,12 @@ def main(dif=False):
     print("repartition des longueurs des prédictions :",length_repartition)
     print("repartition des longueurs des prédictions correctes :", true_length_repartition)
 
-    print("pourcentage de phrases prédites dans la BDD :",per_preds_in_data)
+    #print("pourcentage de phrases prédites dans la BDD :",per_preds_in_data)
+
+    scores = (number_preds, number_true_preds, len(all_preds), length_repartition, true_length_repartition)
+
+    with open(OUTPUT_FILE, 'wb') as fp:
+        pickle.dump(scores, fp)
 
     return
 
@@ -99,10 +108,10 @@ def fileStat(inputLen, expectedLen, n_samples=200):
     print()
     print("expectedLen", expectedLen)
     #stats variables
-    length_repartition = {i: 0 for i in range(19)}
-    true_length_repartition = {i: 0 for i in range(19)}
+    length_repartition = {i: 0 for i in range(20)}
+    true_length_repartition = {i: 0 for i in range(20)}
     number_preds = 0
-    true_repartition_by_length = {i: [] for i in range(19)}  # tous les scores en pourcentages
+    true_repartition_by_length = {i: [] for i in range(20)}  # tous les scores en pourcentages
     all_scores = []  # tous les scores en fonction de la longueur
     all_preds = []
     number_true_preds = 0
