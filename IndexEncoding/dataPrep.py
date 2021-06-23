@@ -202,7 +202,10 @@ def convertIxtoPhrase(dataset, ix_to_word):
                 p.append(ix_to_word[math.ceil(phrase[i])])  #arrondi inférieur
                 p.append(ix_to_word[math.floor(phrase[i])]) #arrondi supérieur
             else :
-                p.append(ix_to_word[round(phrase[i])])
+                try:
+                    p.append(ix_to_word[round(phrase[i])])
+                except:
+                    p.append("!error!")
         data.append(p)
     return data
 

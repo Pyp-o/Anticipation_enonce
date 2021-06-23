@@ -116,17 +116,27 @@ model.eval()
 
 """
 
+setup3 ="""
+from next_word_prediction import GPT2
+gpt2 = GPT2()
+sentence = 'Hello'"""
 
 
 stmt1 = 'v=glove.get_vector(word)'
 stmt2 = 'w=glove.similar_by_vector(vector, topn=1)'
 stmt3 = 'predictions, (_,_) = model(T_X_test)'
+stmt4 = """
+for i in range(0,5):
+    predict = gpt2.predict_next(sentence, 1)
+    sentence += predict[0]"""
 
 
-NUMBER = [1, 10, 100, 1000, 10000, 100000]
+"""
+NUMBER = [1, 10, 100, 1000]
 timer1=[]
 for num in NUMBER:
     print(num)
-    timer1.append(timeit.timeit(stmt=stmt3, setup=setup2, number=num)/num)
+    timer1.append(timeit.timeit(stmt=stmt4, setup=setup3, number=num)/num)
 print("temps encodage:",timer1)
+"""
 

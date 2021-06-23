@@ -4,7 +4,8 @@ import models
 import numpy as np
 import random
 import dataHandlingOneHot
-
+from matplotlib import pyplot as plt
+import os
 
 
 #-------------- No random --------------#
@@ -21,7 +22,7 @@ DATA_SUBSAMPLE = int(SUBSAMPLE/0.9) #number of phrases in the whole set
 BATCH_SIZE = 120  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.001
 N_FEATURES = 1    #1 pour index
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
@@ -30,6 +31,22 @@ EPOCHS = 1000
 
 TEST_SET = "test"
 TEST_SIZE = 20
+
+def plotTest(Losses, test_losses, output_file):
+    # Loss
+    plt.figure()
+    plt.plot(np.log10(Losses))
+    plt.plot(np.log10(test_losses), color='C2')
+    plt.title('Learning curve')
+    plt.ylabel('loss: log10(MSE)')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'valid'], loc = 'upper right')
+    #plt.show()
+    out = os.path.join('.', 'loss_' + output_file)
+    plt.savefig(out, dpi=96, papertype='a7')
+    plt.close('all')
+    return
+
 
 NAME = "../../models/OneHot_trained_model_layer_"+str(NUM_LAYERS)+"_Ncells_"+str(HIDDEN_SIZE)+"_size_"+str(SUBSAMPLE)+"_epochs_"+str(EPOCHS)+".pt"
 PATH = "../../models/OneHot_trained_model_layer_2_Ncells_256_size_5000_epochs_1000.pt"
@@ -130,7 +147,7 @@ for i in range(EPOCHS):
     if i%5 == 1:
         print(f'epoch:{i-1:5}/{EPOCHS:3}\tloss: {single_loss.item():10.10f}')
 print(f'epoch: {i+1:5}/{EPOCHS:5}\tloss: {single_loss.item():10.10f}')
-"""
+
 print("model predicting")
 #-------------- predictions
 if TEST_SET == "train":
@@ -153,5 +170,6 @@ for i in range(len(inp)):
 """
 dataPrep.plotLoss(losses)
 dataPrep.plotLoss(test_losses)
-
-torch.save(model.state_dict(), NAME)
+"""
+plotTest(losses, test_losses, "ctc.png")
+#torch.save(model.state_dict(), NAME)

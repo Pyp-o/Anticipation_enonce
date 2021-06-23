@@ -17,7 +17,6 @@ torch.manual_seed(0)
 def sliding_window(passengers, window):
     X = []
     y = []
-    data = []
     i=0
     while(i+window+1<len(passengers)):
         data = passengers[i :i+window]
@@ -50,22 +49,23 @@ def plotTrain(Losses, output_file):
     plt.ylabel('loss: log10(MSE)')
     plt.xlabel('epoch')
     # plt.legend(['train', 'valid'], loc = 'upper left')
-    plt.show()
+    #plt.show()
     out = os.path.join('.', 'train'+output_file)
     plt.savefig(out, dpi=96, papertype='a7')
     plt.close('all')
     return
 
-def plotTest(Losses, output_file):
+def plotTest(Losses, test_losses, output_file):
     # Loss
     plt.figure()
     plt.plot(np.log10(Losses))
+    plt.plot(np.log10(test_losses), color='C2')
     plt.title('Learning curve')
     plt.ylabel('loss: log10(MSE)')
     plt.xlabel('epoch')
-    # plt.legend(['train', 'valid'], loc = 'upper left')
-    plt.show()
-    out = os.path.join('.', 'test' + output_file)
+    plt.legend(['train', 'valid'], loc = 'upper right')
+    #plt.show()
+    out = os.path.join('.', 'loss_' + output_file)
     plt.savefig(out, dpi=96, papertype='a7')
     plt.close('all')
     return
@@ -82,9 +82,9 @@ def plotResults(pred_passengers, inputSeqLength, passengers, output_file):
     plt.ylabel('air passengers')
     plt.xlabel('months')
     plt.legend(['valid', 'train'], loc='upper left')
-    plt.show()
+    #plt.show()
 
-    out = os.path.join('.', 'values' + output_file)
+    out = os.path.join('.', 'values_' + output_file)
     plt.savefig(out, dpi=96, papertype='a7')
     plt.close('all')
 
@@ -147,8 +147,8 @@ def main(BATCH_SIZE, LEARNING_RATE, N_FEATURES, HIDDEN_SIZE, NUM_LAYERS, EPOCHS,
     pred = pred.detach().numpy().reshape(-1)
     pred_passengers = scaler.inverse_transform(pred.reshape(-1, 1))
 
-    plotTrain(losses, OUTPUT_FILE)
-    plotTest(test_losses, OUTPUT_FILE)
+    #plotTrain(losses, test_losses, OUTPUT_FILE)
+    plotTest(losses, test_losses, OUTPUT_FILE)
 
     plotResults(pred_passengers, 1, passengers, OUTPUT_FILE)
 
@@ -158,9 +158,9 @@ def main(BATCH_SIZE, LEARNING_RATE, N_FEATURES, HIDDEN_SIZE, NUM_LAYERS, EPOCHS,
 
 
 BATCH_SIZE = [1, 2, 5, 10, 26, 65, 130]
-LEARNING_RATE = [0.1, 0.01, 0.001, 0.0001]
+LEARNING_RATE = [0.01, 0.001, 0.0001, 1e-5]
 N_FEATURES = 1
-HIDDEN_SIZE = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+HIDDEN_SIZE = [2, 4, 8, 16, 32, 64, 128, 256]
 NUM_LAYERS = range(1,4)
 EPOCHS = 1000
 
@@ -177,15 +177,20 @@ X_test, Y_test = sliding_window(test, 1)
 
 for bs in BATCH_SIZE:
     print("batch size = ", bs)
-    output_file = 'prelim_lr0-001_hs64_bs'+str(bs)+'_nl1_e1000.pdf'
-    main(BATCH_SIZE=bs, LEARNING_RATE=.001, N_FEATURES=N_FEATURES, HIDDEN_SIZE=64, NUM_LAYERS=1, EPOCHS=EPOCHS, OUTPUT_FILE=output_file)
+    output_file = 'bs_prelim_lr0-001_hs64_bs'+str(bs)+'_nl1_e1000.png'
+    main(BATCH_SIZE=bs, LEARNING_RATE=.0001, N_FEATURES=N_FEATURES, HIDDEN_SIZE=64, NUM_LAYERS=2, EPOCHS=EPOCHS, OUTPUT_FILE=output_file)
 
 for lr in LEARNING_RATE:
     print("learning rate = ", lr)
-    output_file = os.path.join('.', 'prelim_lr'+str(lr)+'_hs64_bs1_nl1_e1000.pdf')
-    main(1, lr, N_FEATURES, 64, 1, EPOCHS, output_file)
+    output_file = 'lr_prelim_lr'+str(lr)+'_hs64_bs1_nl1_e1000.png'
+    main(26, lr, N_FEATURES, 128, 2, EPOCHS, output_file)
 
 for hs in HIDDEN_SIZE:
     print("hidden size = ", hs)
-    output_file = os.path.join('.', 'prelim_lr0-001_hs'+str(hs)+'_bs1_nl1_e1000.pdf')
-    main(1, 0.001, N_FEATURES, hs, 1, EPOCHS, output_file)
+    output_file = 'hs_prelim_lr0-001_hs'+str(hs)+'_bs1_nl1_e1000.png'
+    main(26, 0.0001, N_FEATURES, hs, 2, EPOCHS, output_file)
+
+for nl in NUM_LAYERS:
+    print("num layers = ", nl)
+    output_file = 'nl_prelim_lr0-001_hs64_bs1_nl'+str(nl)+'_e1000.png'
+    main(26, 0.0001, N_FEATURES, 128, nl, EPOCHS, output_file)

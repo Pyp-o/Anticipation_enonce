@@ -9,12 +9,12 @@ def prepareData(min=-1, max=1):
     df.close()
     data = dataPrep.parseUtterances(data)
     data = dataPrep.parsePhrase(data)
-    #data = dataPrep.removePunctuation(data)
+    data = dataPrep.removePunctuation(data)
     #make each phrase as an entry of array
     data = dataPrep.dataAsArray(data)
     data = dataPrep.rmSpaces(data)
     vocab = dataPrep.vocabConstruct(data)
-    #vocab = sorted(vocab, key=str.lower)  # tri du vocabulaire par ordre alphabétique -> permet d'avoir des mots proches lorsque l'erreur de prédiction est faible
+    vocab = sorted(vocab, key=str.lower)  # tri du vocabulaire par ordre alphabétique -> permet d'avoir des mots proches lorsque l'erreur de prédiction est faible
     word_to_ix, ix_to_word = dataPrep.encodeWord(vocab, 'index')
     #convert words to ix
     data = dataPrep.convertPhrasetoIx(data, word_to_ix)

@@ -7,7 +7,10 @@ import numpy as np
 import random
 import pickle
 from os.path import exists
+import os
+from matplotlib import pyplot as plt
 import sys
+
 
 
 
@@ -30,13 +33,26 @@ DATA_SUBSAMPLE = int(SUBSAMPLE/0.8) #number of phrases in the whole set
 BATCH_SIZE = 120  #number oh phrases in every subsample (must respect SUBSAMPLE*BATCH_SIZE*(UTT_LEN/2)*N_FEATURES=tensor_size)
 UTT_LEN = 8             #doit etre pair pour le moment
 
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.001
 N_FEATURES = 1    #1 pour index
 HIDDEN_SIZE = 256
 NUM_LAYERS = 2
 EPOCHS = 1000
 
-
+def plotTest(Losses, test_losses, output_file):
+    # Loss
+    plt.figure()
+    plt.plot(np.log10(Losses))
+    plt.plot(np.log10(test_losses), color='C2')
+    plt.title('Learning curve')
+    plt.ylabel('loss: log10(MSE)')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'valid'], loc = 'upper right')
+    #plt.show()
+    out = os.path.join('.', 'loss_' + output_file)
+    plt.savefig(out, dpi=96, papertype='a7')
+    plt.close('all')
+    return
 
 #-------------- MAIN --------------#
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -135,14 +151,12 @@ predictions = predictions.cpu().detach().numpy()
 inp = scaler.inverse_transform(X_train[:l])
 out = scaler.inverse_transform(Y_train)
 predictions = dataPrep.reverseTransformedPrediction(predictions, scaler)
-"""
+
 inp = dataPrep.convertIxtoPhrase(inp, ix_to_word)
 out = dataPrep.convertIxtoPhrase(out, ix_to_word)
 predictions = dataPrep.convertIxtoPhrase(predictions, ix_to_word)
 
 for i in range(len(inp)):
     print(f'\ni:{i:3} input: {inp[i]}\nexpected: {out[i]}\npredicted: {predictions[i]}')
-"""
 
-dataPrep.plotLoss(losses)
-dataPrep.plotLoss(test_losses)
+plotTest(losses, test_losses, "random_index.png")
