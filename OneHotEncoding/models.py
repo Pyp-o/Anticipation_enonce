@@ -15,5 +15,5 @@ class LSTM(nn.Module):
     def forward(self, x, prev_state=None):
         x, prev_state = self.lstm1(x, prev_state)
         x = self.fc(x)
-        x = self.out(x)
+        #x = self.out(x)
         return x, prev_state

@@ -88,15 +88,19 @@ T_y_test = []
 #-------------- convert arrays as tensors
 T_X_train = torch.FloatTensor(X_train)
 T_y_train = torch.LongTensor(Y_train)
+#T_y_train = torch.FloatTensor(Y_train)
 T_X_train = torch.reshape(T_X_train, (-1, T, N, C))
-T_y_train = torch.reshape(T_y_train, (-1, N, S))
+#T_y_train = torch.reshape(T_y_train, (-1, N, S))
+T_y_train = torch.reshape(T_y_train, (-1, T, N, 1))
 
 T_X_test = torch.FloatTensor(X_test)
 del X_test
 T_y_test = torch.LongTensor(Y_test)
+#T_y_test = torch.FloatTensor(Y_test)
 del Y_test
 T_X_test = torch.reshape(T_X_test, (-1, T, 1, C))
-T_y_test = torch.reshape(T_y_test, (-1, 1, S))
+#T_y_test = torch.reshape(T_y_test, (-1, 1, S))
+T_y_test = torch.reshape(T_y_test, (-1, T, 1, 1))
 
 print("T_X_train", T_X_train.shape)
 print("T_y_train", T_y_train.shape)
@@ -106,7 +110,9 @@ print("T_y_train", T_y_train.shape)
 print("model declaration")
 #model declaration
 model = models.LSTM(hidden_size=HIDDEN_SIZE, nfeatures=N_FEATURES, num_layers=NUM_LAYERS, output_size=N_FEATURES, dropout=DROPOUT).to(device)
-loss_function = torch.nn.CTCLoss(reduction='mean')
+#loss_function = torch.nn.CTCLoss(reduction='mean')
+loss_function = torch.nn.CrossEntropyLoss(reduction='mean')
+
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 losses = []
 test_losses = []
@@ -121,27 +127,34 @@ for i in range(EPOCHS):
 
     for j in range(len(T_X_train)):
         if j<len(T_X_test):
-            Xt = T_X_test[j].to(device)
-            yt_pred, (_, _) = model(Xt)
-            expt = torch.reshape(T_y_test[j], (1, S)).to(device)
-            input_lengtht = torch.full(size=(1,), fill_value=T, dtype=torch.long)
-            target_lengtht = torch.randint(low=1, high=T, size=(1,), dtype=torch.long)
-            single_loss = loss_function(yt_pred, expt, input_lengtht, target_lengtht)
+            X = T_X_test[j].to(device)
+            Y = T_y_test[j]
+            Y = torch.reshape(Y, (-1,)).to(device)
+            y_pred, (_,_) = model(X)
+            y_pred = torch.reshape(y_pred, (-1, C))
+            #expt = torch.reshape(T_y_test[j], (1, S)).to(device)
+            #input_lengtht = torch.full(size=(1,), fill_value=T, dtype=torch.long)
+            #target_lengtht = torch.randint(low=1, high=T, size=(1,), dtype=torch.long)
+            #single_loss = loss_function(yt_pred, expt, input_lengtht, target_lengtht)
+            single_loss = loss_function(y_pred, Y)
             test_loss+=single_loss.item()
             model.zero_grad()
 
-
         X = T_X_train[j].to(device)
-        y_pred, (_,_) = model(X)
-        exp = torch.reshape(T_y_train[j], (N, S)).to(device)
-        input_length = torch.full(size = (BATCH_SIZE,), fill_value=T, dtype=torch.long)
-        target_length = torch.randint(low=1, high=T, size=(N,), dtype=torch.long)
-        single_loss = loss_function(y_pred, exp, input_length, target_length)
+        Y = T_y_train[j]
+        Y = torch.reshape(Y, (-1,)).to(device)
+        y_pred, (_, _) = model(X)
+        y_pred = torch.reshape(y_pred, (-1, C))
+        #exp = torch.reshape(T_y_train[j], (N, S)).to(device)
+        #input_length = torch.full(size = (BATCH_SIZE,), fill_value=T, dtype=torch.long)
+        #target_length = torch.randint(low=1, high=T, size=(N,), dtype=torch.long)
+        #single_loss = loss_function(y_pred, exp, input_length, target_length)
+        single_loss = loss_function(y_pred, Y)
         loss += single_loss.item()
         single_loss.backward()
         optimizer.step()
         model.zero_grad()
-        exp.detach()
+        #exp.detach()
     losses.append(loss/len(T_X_train))  #loss cumulée pour chaque epoch
     test_losses.append(loss / len(T_X_test))  # loss cumulée pour chaque epoch
     if i%5 == 1:
@@ -156,7 +169,9 @@ if TEST_SET == "train":
     predictions, (_,_) = model(T_X_train)
 
 else :
+    del T_X_train
     T_X_test = T_X_test[:TEST_SIZE].to(device)
+    T_X_test = torch.reshape(T_X_test, (-1, int(UTT_LEN / 2), N_FEATURES)).to(device)
     predictions, (_,_) = model(T_X_test)
 
 print("reverse predicted tensors to CPU")

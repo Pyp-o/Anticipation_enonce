@@ -260,7 +260,10 @@ def reverseOneHot(dataset, ix_to_word):
     for phrase in dataset:
         ph = []
         for words in phrase:
-            ph.append(ix_to_word[words])
+            try:
+                ph.append(ix_to_word[words])
+            except:
+                ph.append('!error!')
         data.append(ph)
     return data
 
